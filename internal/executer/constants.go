@@ -3,11 +3,11 @@ package executer
 type Language string
 
 const (
-	Golang     Language = "Golang"
-	Python     Language = "Python"
-	JavaScript Language = "JavaScript"
-	Rust       Language = "Rust"
-	C          Language = "C"
-	CPlusPlus  Language = "C++"
-	Java       Language = "Java"
+	Golang     Language = "golang"
+	Python     Language = "python"
+	JavaScript Language = "javaScript"
+	Rust       Language = "rust"
+	C          Language = "c"
+	CPlusPlus  Language = "c++"
+	Java       Language = "java"
 )

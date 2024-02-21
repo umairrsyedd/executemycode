@@ -19,18 +19,26 @@ type Program struct {
 	ErrorChan  chan any
 }
 
-func New(id uuid.UUID, language Language, code string) Program {
+func New(id uuid.UUID, language Language) Program {
 	return Program{
 		Id:         id,
 		Language:   language,
-		Code:       code,
+		Code:       "",
 		InputChan:  make(chan any),
 		OutputChan: make(chan any),
 		ErrorChan:  make(chan any),
 	}
 }
 
+func (p *Program) SetCode(code string) {
+	p.Code = code
+}
+
 func (p *Program) Execute() (err error) {
+	if p.Code == "" {
+		return fmt.Errorf("no code for execution")
+	}
+
 	file, cmd, err := p.prepare(p.Language, p.Code)
 	if err != nil {
 		return err
@@ -64,7 +72,8 @@ func (p *Program) Execute() (err error) {
 
 func (p *Program) prepare(language Language, code string) (file *os.File, cmd *exec.Cmd, err error) {
 	execInfo := getExecInfo(language)
-	file, err = os.CreateTemp("", fmt.Sprintf("program*.%s", execInfo.FileExtension))
+	// file, err = os.CreateTemp("", fmt.Sprintf("program*.%s", execInfo.FileExtension))
+	file, err = os.Create("tester.go")
 	if err != nil {
 		return nil, nil, err
 	}
