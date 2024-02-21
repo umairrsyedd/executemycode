@@ -3,7 +3,6 @@ package handlers
 import (
 	"executemycode/internal/executer"
 	"executemycode/internal/socket"
-	"time"
 
 	"fmt"
 	"log"
@@ -30,10 +29,11 @@ func ExecuteHandler(w http.ResponseWriter, r *http.Request) {
 
 	go client.ReadMessages(program.InputChan)
 
-	isClosed := <-client.Closed
-	if isClosed {
-		log.Printf("Client %s disconnected", client.Id)
+	for {
+		isClosed := <-client.Closed
+		if isClosed {
+			log.Printf("Client %s disconnected", client.Id)
+			break
+		}
 	}
-
-	time.Sleep(30 * time.Second)
 }
