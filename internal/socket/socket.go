@@ -45,15 +45,24 @@ func (c *Client) WriteMessage(data []byte) (err error) {
 	return nil
 }
 
-func (c *Client) ReadMessages(receivingChannel chan any) {
+func (c *Client) ReadMessages(callbacks ...func(message Message)) {
 	for {
-		var message Message
-		err := c.Conn.ReadJSON(&message)
-		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived) {
-				c.Closed <- true
+		select {
+		case <-c.Closed:
+			return
+		default:
+			var message Message
+			err := c.Conn.ReadJSON(&message)
+			if err != nil {
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived) {
+					c.Closed <- true
+				} else {
+					log.Printf("error reading json message %v", err)
+				}
 			} else {
-				log.Printf("error reading json message %v", err)
+				for _, callback := range callbacks {
+					callback(message)
+				}
 			}
 		}
 	}

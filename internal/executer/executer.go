@@ -17,10 +17,11 @@ type Program struct {
 	InputChan  chan any
 	OutputChan chan any
 	ErrorChan  chan any
+	Completed  chan bool
 }
 
-func New(id uuid.UUID, language Language) Program {
-	return Program{
+func NewProgram(id uuid.UUID, language Language) *Program {
+	return &Program{
 		Id:         id,
 		Language:   language,
 		Code:       "",
@@ -34,25 +35,29 @@ func (p *Program) SetCode(code string) {
 	p.Code = code
 }
 
-func (p *Program) Execute() (err error) {
+func (p *Program) Execute() {
 	if p.Code == "" {
-		return fmt.Errorf("no code for execution")
+		p.ErrorChan <- fmt.Errorf("no code set for execution")
+		return
 	}
 
 	file, cmd, err := p.prepare(p.Language, p.Code)
 	if err != nil {
-		return err
+		p.ErrorChan <- err
+		return
 	}
 	defer os.Remove(file.Name())
 
 	stdinPipe, stdoutPipe, stderrPipe, err := p.setupPipes(cmd)
 	if err != nil {
-		return err
+		p.ErrorChan <- err
+		return
 	}
 
 	err = cmd.Start()
 	if err != nil {
-		return err
+		p.ErrorChan <- err
+		return
 	}
 
 	go sendInputToPipe(stdinPipe, p.InputChan)
@@ -61,19 +66,18 @@ func (p *Program) Execute() (err error) {
 
 	err = cmd.Wait()
 	if err != nil {
-		fmt.Println("Error during cmd wait stage " + err.Error())
-		return err
+		p.ErrorChan <- err.Error()
+		return
 	}
 
-	fmt.Printf("\nProgram %v finished executing", p.Id)
+	fmt.Printf("\nProgram %v finished executing\n", p.Id)
+	p.Completed <- true
 
-	return
 }
 
 func (p *Program) prepare(language Language, code string) (file *os.File, cmd *exec.Cmd, err error) {
 	execInfo := getExecInfo(language)
-	// file, err = os.CreateTemp("", fmt.Sprintf("program*.%s", execInfo.FileExtension))
-	file, err = os.Create("tester.go")
+	file, err = os.CreateTemp("", fmt.Sprintf("program*.%s", execInfo.FileExtension))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -113,7 +117,7 @@ func (p *Program) setupPipes(cmd *exec.Cmd) (stdinPipe io.WriteCloser, stdoutPip
 
 func sendInputToPipe(pipe io.Writer, channel chan any) {
 	for input := range channel {
-		_, err := fmt.Fprint(pipe, input)
+		_, err := fmt.Fprintln(pipe, input)
 		if err != nil {
 			fmt.Printf("Error writing input to pipe: %v\n", err)
 			break
@@ -123,10 +127,16 @@ func sendInputToPipe(pipe io.Writer, channel chan any) {
 
 func captureOutputFromPipe(pipe io.ReadCloser, channel chan any) {
 	scanner := bufio.NewScanner(pipe)
+	scanner.Split(bufio.ScanLines)
+
 	go func() {
 		for scanner.Scan() {
 			output := scanner.Text()
-			fmt.Printf("\n%v", output)
+			channel <- output
+		}
+
+		if err := scanner.Err(); err != nil {
+			fmt.Printf("Error reading from pipe: %v\n", err)
 		}
 	}()
 }

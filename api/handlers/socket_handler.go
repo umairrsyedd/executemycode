@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"executemycode/internal/bridge"
 	"executemycode/internal/executer"
 	"executemycode/internal/socket"
 
@@ -22,18 +23,12 @@ func ExecuteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer client.CloseConnection()
-
 	log.Printf("Client %s connected", client.Id)
 
-	program := executer.New(client.Id, executer.Language(language))
+	program := executer.NewProgram(client.Id, executer.Language(language))
+	handler := bridge.New(client, program)
 
-	go client.ReadMessages(program.InputChan)
+	handler.Start()
 
-	for {
-		isClosed := <-client.Closed
-		if isClosed {
-			log.Printf("Client %s disconnected", client.Id)
-			break
-		}
-	}
+	log.Printf("Client %s disconnected", client.Id)
 }
