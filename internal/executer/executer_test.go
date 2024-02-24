@@ -94,3 +94,11 @@ func TestExecuter__MultiInput(t *testing.T) {
 
 	time.Sleep(4 * time.Second)
 }
+
+func SetupPythonProgram(code string) *Program {
+	id := uuid.New()
+	langauge := Python3
+	program := NewProgram(id, langauge)
+	program.SetCode(code)
+	return program
+}

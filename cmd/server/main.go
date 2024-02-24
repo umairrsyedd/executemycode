@@ -2,6 +2,8 @@ package main
 
 import (
 	"executemycode/api/handlers"
+	_ "executemycode/internal/socket"
+
 	"net/http"
 )
 

@@ -2,6 +2,7 @@ package executer
 
 import (
 	"bufio"
+	"executemycode/internal/common"
 	"fmt"
 	"io"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 type Program struct {
 	Id         uuid.UUID
+	State      ProgramState
 	Language   Language
 	Code       string
 	InputChan  chan any
@@ -23,6 +25,7 @@ type Program struct {
 func NewProgram(id uuid.UUID, language Language) *Program {
 	return &Program{
 		Id:         id,
+		State:      Idle,
 		Language:   language,
 		Code:       "",
 		InputChan:  make(chan any),
@@ -35,6 +38,25 @@ func (p *Program) SetCode(code string) {
 	p.Code = code
 }
 
+func (p *Program) HandleMessage(message common.Message) {
+	switch p.State {
+	case Running:
+		if message.IsCode() {
+			return
+		} else if message.IsInput() {
+			p.InputChan <- message.Message
+			p.OutputChan <- message.Message
+		}
+	case Idle, Terminated:
+		if message.IsCode() {
+			p.Code = message.Message
+			go p.Execute()
+			p.State = Running
+		}
+	}
+
+}
+
 func (p *Program) Execute() {
 	if p.Code == "" {
 		p.ErrorChan <- fmt.Errorf("no code set for execution")
@@ -43,26 +65,26 @@ func (p *Program) Execute() {
 
 	file, cmd, err := p.prepare(p.Language, p.Code)
 	if err != nil {
-		p.ErrorChan <- err
+		p.ErrorChan <- err.Error()
 		return
 	}
 	defer os.Remove(file.Name())
 
 	stdinPipe, stdoutPipe, stderrPipe, err := p.setupPipes(cmd)
 	if err != nil {
-		p.ErrorChan <- err
+		p.ErrorChan <- err.Error()
 		return
 	}
 
 	err = cmd.Start()
 	if err != nil {
-		p.ErrorChan <- err
+		p.ErrorChan <- err.Error()
 		return
 	}
 
-	go sendInputToPipe(stdinPipe, p.InputChan)
-	go captureOutputFromPipe(stdoutPipe, p.OutputChan)
-	go captureOutputFromPipe(stderrPipe, p.ErrorChan)
+	go sendInputToProgram(stdinPipe, p.InputChan)
+	go captureOutputFromProgram(stdoutPipe, p.OutputChan)
+	go captureOutputFromProgram(stderrPipe, p.ErrorChan)
 
 	err = cmd.Wait()
 	if err != nil {
@@ -71,8 +93,7 @@ func (p *Program) Execute() {
 	}
 
 	fmt.Printf("\nProgram %v finished executing\n", p.Id)
-	p.Completed <- true
-
+	p.State = Terminated
 }
 
 func (p *Program) prepare(language Language, code string) (file *os.File, cmd *exec.Cmd, err error) {
@@ -115,7 +136,7 @@ func (p *Program) setupPipes(cmd *exec.Cmd) (stdinPipe io.WriteCloser, stdoutPip
 
 }
 
-func sendInputToPipe(pipe io.Writer, channel chan any) {
+func sendInputToProgram(pipe io.Writer, channel chan any) {
 	for input := range channel {
 		_, err := fmt.Fprintln(pipe, input)
 		if err != nil {
@@ -125,7 +146,7 @@ func sendInputToPipe(pipe io.Writer, channel chan any) {
 	}
 }
 
-func captureOutputFromPipe(pipe io.ReadCloser, channel chan any) {
+func captureOutputFromProgram(pipe io.ReadCloser, channel chan any) {
 	scanner := bufio.NewScanner(pipe)
 	scanner.Split(bufio.ScanLines)
 

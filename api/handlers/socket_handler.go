@@ -17,7 +17,7 @@ func ExecuteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := socket.NewClient(w, r, nil)
+	client, err := socket.ConnectionManager.ConnectClient(w, r, nil)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Could not establish socket connection : %v", err), http.StatusInternalServerError)
 		return
@@ -26,8 +26,8 @@ func ExecuteHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Client %s connected", client.Id)
 
 	program := executer.NewProgram(client.Id, executer.Language(language))
-	handler := bridge.New(client, program)
 
+	handler := bridge.New(client, program)
 	handler.Start()
 
 	log.Printf("Client %s disconnected", client.Id)

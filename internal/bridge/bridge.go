@@ -22,21 +22,15 @@ func New(client *socket.Client, program *executer.Program) Bridge {
 }
 
 func (b *Bridge) Start() {
-	go b.Client.ReadMessages(b.ClientMessageHandler())
+	go b.Client.ReadMessages(b.Program.HandleMessage) // Link Client Message to Program
 
 	for {
 		select {
 		case isClosed := <-b.Client.Closed:
 			if isClosed {
 				log.Printf("Client %s disconnected", b.Client.Id)
-				b.Client.CloseConnection()
+				socket.ConnectionManager.DisconnectClient(b.Client.Id)
 			}
-
-		case executionComplete := <-b.Program.Completed:
-			if executionComplete {
-				b.Client.Closed <- true
-			}
-
 		case output, ok := <-b.Program.OutputChan:
 			if !ok {
 				fmt.Println("Output Channel Closed")
@@ -45,7 +39,6 @@ func (b *Bridge) Start() {
 			fmt.Printf("%v", output)
 			if outputStr, ok := output.(string); ok {
 				outputBytes := []byte(outputStr)
-
 				b.Client.WriteMessage(outputBytes)
 			} else {
 				fmt.Println("Output is not a string")
@@ -56,20 +49,14 @@ func (b *Bridge) Start() {
 				fmt.Println("Error Channel Closed")
 				return
 			}
-			fmt.Println("Error Channel Received Something")
 			fmt.Printf("%v", err)
-		}
-	}
-}
+			if errorStr, ok := err.(string); ok {
+				errorBytes := []byte(errorStr)
+				b.Client.WriteMessage(errorBytes)
+			} else {
+				fmt.Println("Error is not a err")
+			}
 
-func (b *Bridge) ClientMessageHandler() func(message socket.Message) {
-	return func(message socket.Message) {
-		switch message.Type {
-		case socket.Code:
-			b.Program.SetCode(message.Message)
-			go b.Program.Execute()
-		case socket.Input:
-			b.Program.InputChan <- message.Message
 		}
 	}
 }

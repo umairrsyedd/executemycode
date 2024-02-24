@@ -1,4 +1,4 @@
-package socket
+package common
 
 import (
 	"encoding/json"
@@ -41,5 +41,16 @@ func EncodeMessage(messageType MessageType, message string) (encodedMessage []by
 	}
 
 	return encodedMessage, nil
+}
 
+func (m Message) IsCode() bool {
+	return m.Type == Code
+}
+
+func (m Message) IsInput() bool {
+	return m.Type == Input
+}
+
+func (m Message) IsClose() bool {
+	return m.Type == Close
 }
