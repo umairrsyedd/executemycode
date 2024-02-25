@@ -8,12 +8,6 @@ import (
 )
 
 func GetTarFile(file []byte, resultFileName string) io.Reader {
-	// file, err := os.ReadFile(filePath)
-	// if err != nil {
-	// 	panic(fmt.Errorf("error reading file: %v", err))
-	// }
-
-	// 5. Store the Opened file inside the app directory using tar in the container as sample.go
 	var tarBuffer bytes.Buffer
 	tarWriter := tar.NewWriter(&tarBuffer)
 	err := tarWriter.WriteHeader(&tar.Header{

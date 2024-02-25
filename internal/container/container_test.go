@@ -29,11 +29,11 @@ func TestContainer__Create(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	container, err := NewContainer(ctx, client, "Test_Container")
+	container, err := newContainer(ctx, client, "Test_Container")
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer container.Remove(ctx)
+	defer container.remove(ctx)
 }
 
 type testReadWriteCloser struct {
@@ -60,7 +60,7 @@ func TestContainer__Execute(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	container, err := NewContainer(ctx, client, "Test_Container")
+	container, err := newContainer(ctx, client, "Test_Container")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -71,7 +71,7 @@ func TestContainer__Execute(t *testing.T) {
 		output: bytes.NewBuffer(nil),
 	}
 
-	err = container.Execute(context.TODO(), testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
+	err = container.execute(context.TODO(), testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -81,7 +81,7 @@ func TestContainer__Execute(t *testing.T) {
 	// Print the captured output to stdout
 	fmt.Println("Captured Output:", testRWClose.output.String())
 
-	defer container.Remove(ctx)
+	defer container.remove(ctx)
 }
 
 func TestFlow_Manager_To_Container_To_User(t *testing.T) {
@@ -98,11 +98,11 @@ func TestFlow_Manager_To_Container_To_User(t *testing.T) {
 		output: bytes.NewBuffer(nil),
 	}
 
-	go manager.ExecuteInIdleContainer(ctx, testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
+	go manager.ExecuteInAvailableContainer(ctx, testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
 
-	go manager.ExecuteInIdleContainer(ctx, testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
+	go manager.ExecuteInAvailableContainer(ctx, testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
 
-	go manager.ExecuteInIdleContainer(ctx, testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
+	go manager.ExecuteInAvailableContainer(ctx, testRWClose, "./sample.txt", "./sample.go", []string{"go", "run", "sample.go"})
 
 	time.Sleep(10 * time.Second)
 

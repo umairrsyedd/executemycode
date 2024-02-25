@@ -28,9 +28,9 @@ type Container struct {
 	Status        ContainerStatus
 }
 
-func NewContainer(ctx context.Context, client *client.Client, containerName string) (createdContainer *Container, err error) {
+func newContainer(ctx context.Context, client *client.Client, containerName string) (createdContainer *Container, err error) {
 	createResponse, err := client.ContainerCreate(ctx, &container.Config{
-		Image: "golang:latest",
+		Image: "executer-image",
 		Cmd:   []string{"sleep", "infinity"},
 		Tty:   false,
 	}, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, containerName)
@@ -54,8 +54,8 @@ func NewContainer(ctx context.Context, client *client.Client, containerName stri
 	}, nil
 }
 
-func (c *Container) Execute(ctx context.Context, conn io.ReadWriteCloser, filePath string, resultFileName string, Cmd []string) (err error) {
-	err = c.CopyToContainer(ctx, filePath, resultFileName)
+func (c *Container) execute(ctx context.Context, conn io.ReadWriteCloser, filePath string, resultFileName string, Cmd []string) (err error) {
+	err = c.copyToContainer(ctx, filePath, resultFileName)
 	if err != nil {
 		return err
 	}
@@ -101,14 +101,14 @@ func (c *Container) Execute(ctx context.Context, conn io.ReadWriteCloser, filePa
 	return nil
 }
 
-func (c *Container) CopyToContainer(ctx context.Context, filePath string, resultFileName string) (err error) {
+func (c *Container) copyToContainer(ctx context.Context, filePath string, resultFileName string) (err error) {
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("error reading file: %v", err)
 	}
 
 	err = c.Client.CopyToContainer(ctx, c.ContainerId,
-		"./go/",
+		"./app/",
 		GetTarFile(fileContent, resultFileName),
 		types.CopyToContainerOptions{})
 	if err != nil {
@@ -118,16 +118,12 @@ func (c *Container) CopyToContainer(ctx context.Context, filePath string, result
 	return nil
 }
 
-func (c *Container) Remove(ctx context.Context) error {
+func (c *Container) remove(ctx context.Context) error {
 	return c.Client.ContainerRemove(ctx, c.ContainerId, container.RemoveOptions{
 		Force: true,
 	})
 }
 
-func (c *Container) SetStatus(status ContainerStatus) {
+func (c *Container) setStatus(status ContainerStatus) {
 	c.Status = status
-}
-
-func (c *Container) IsActive() bool {
-	return c.Status == Active
 }
