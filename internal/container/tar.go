@@ -7,7 +7,8 @@ import (
 	"log"
 )
 
-func GetTarFile(file []byte, resultFileName string) io.Reader {
+// TODO: Implement Better Error Handling here
+func getTarFile(file []byte, resultFileName string) io.Reader {
 	var tarBuffer bytes.Buffer
 	tarWriter := tar.NewWriter(&tarBuffer)
 	err := tarWriter.WriteHeader(&tar.Header{

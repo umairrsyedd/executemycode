@@ -1,4 +1,4 @@
-package common
+package message
 
 import (
 	"encoding/json"
@@ -16,8 +16,10 @@ const (
 )
 
 type Message struct {
-	Type    MessageType `json:"type"`
-	Message string      `json:"message"`
+	ProgramId *int        `json:"programId"`
+	Type      MessageType `json:"type"`
+	Message   string      `json:"message"`
+	Language  string      `json:"language"`
 }
 
 func DecodeMessage(rawMessage []byte) (decodedMessage Message, err error) {

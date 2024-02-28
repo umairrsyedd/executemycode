@@ -1,10 +1,10 @@
 package container
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
-	"os"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -28,7 +28,7 @@ type Container struct {
 	Status        ContainerStatus
 }
 
-func newContainer(ctx context.Context, client *client.Client, containerName string) (createdContainer *Container, err error) {
+func new(ctx context.Context, client *client.Client, containerName string) (createdContainer *Container, err error) {
 	createResponse, err := client.ContainerCreate(ctx, &container.Config{
 		Image: "executer-image",
 		Cmd:   []string{"sleep", "infinity"},
@@ -54,14 +54,14 @@ func newContainer(ctx context.Context, client *client.Client, containerName stri
 	}, nil
 }
 
-func (c *Container) execute(ctx context.Context, conn io.ReadWriteCloser, filePath string, resultFileName string, Cmd []string) (err error) {
-	err = c.copyToContainer(ctx, filePath, resultFileName)
+func (c *Container) Execute(ctx context.Context, conn io.ReadWriteCloser, code string) (err error) {
+	err = c.copyToContainer(ctx, []byte(code), "sample.go") // TODO: Remove Hardcoding
 	if err != nil {
 		return err
 	}
 
 	execCreateResp, err := c.Client.ContainerExecCreate(ctx, c.ContainerId, types.ExecConfig{
-		Cmd:          Cmd,
+		Cmd:          []string{"go", "run", "sample.go"}, // TODO: Remove Hardcoding
 		Tty:          true,
 		AttachStdin:  true,
 		AttachStdout: true,
@@ -84,7 +84,12 @@ func (c *Container) execute(ctx context.Context, conn io.ReadWriteCloser, filePa
 	}()
 
 	go func() {
-		io.Copy(conn, execResp.Reader) // Read output from container
+		scanner := bufio.NewScanner(execResp.Reader)
+		for scanner.Scan() {
+			output := scanner.Text()
+			io.WriteString(conn, output)
+		}
+
 	}()
 
 	for {
@@ -94,6 +99,7 @@ func (c *Container) execute(ctx context.Context, conn io.ReadWriteCloser, filePa
 			return err
 		}
 		if !execInspect.Running {
+			fmt.Println("Program has finished execution")
 			break
 		}
 	}
@@ -101,15 +107,10 @@ func (c *Container) execute(ctx context.Context, conn io.ReadWriteCloser, filePa
 	return nil
 }
 
-func (c *Container) copyToContainer(ctx context.Context, filePath string, resultFileName string) (err error) {
-	fileContent, err := os.ReadFile(filePath)
-	if err != nil {
-		return fmt.Errorf("error reading file: %v", err)
-	}
-
+func (c *Container) copyToContainer(ctx context.Context, content []byte, resultFileName string) (err error) {
 	err = c.Client.CopyToContainer(ctx, c.ContainerId,
 		"./app/",
-		GetTarFile(fileContent, resultFileName),
+		getTarFile(content, resultFileName),
 		types.CopyToContainerOptions{})
 	if err != nil {
 		return fmt.Errorf("error copying file to container: %v", err)
