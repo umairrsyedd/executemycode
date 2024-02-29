@@ -1,7 +1,6 @@
 package client
 
 import (
-	"executemycode/internal/program"
 	"net/http"
 	"sync"
 
@@ -51,9 +50,4 @@ func (m *ClientRegistry) CleanUp() {
 	for _, client := range m.Connections {
 		client.CloseConnection()
 	}
-}
-
-func (m *ClientRegistry) NewProgram(clientId uuid.UUID, Program program.Program) {
-	client := m.Connections[clientId]
-	client.AddProgram(Program.Id, &Program)
 }

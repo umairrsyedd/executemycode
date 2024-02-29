@@ -3,8 +3,8 @@ package container
 import (
 	"bufio"
 	"context"
+	"executemycode/internal/executer"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -54,8 +54,8 @@ func new(ctx context.Context, client *client.Client, containerName string) (crea
 	}, nil
 }
 
-func (c *Container) Execute(ctx context.Context, conn io.ReadWriteCloser, code string) (err error) {
-	err = c.copyToContainer(ctx, []byte(code), "sample.go") // TODO: Remove Hardcoding
+func (c *Container) execute(ctx context.Context, execution *executer.Execution) (err error) {
+	err = c.copyToContainer(ctx, []byte(execution.ExecutionInfo.SourceCode), "sample.go") // TODO: Remove Hardcoding
 	if err != nil {
 		return err
 	}
@@ -80,30 +80,39 @@ func (c *Container) Execute(ctx context.Context, conn io.ReadWriteCloser, code s
 	defer execResp.Close()
 
 	go func() {
-		io.Copy(execResp.Conn, conn) // Forward input to container
+		for {
+			input, ok := <-execution.InputChan
+			if !ok {
+				return
+			}
+			fmt.Printf("I'm writing this input to the container: %v\n", input)
+			_, err := execResp.Conn.Write([]byte(input))
+			if err != nil {
+				fmt.Printf("error writing to container: %v", err)
+			}
+		}
 	}()
 
 	go func() {
 		scanner := bufio.NewScanner(execResp.Reader)
+		scanner.Split(bufio.ScanBytes)
 		for scanner.Scan() {
 			output := scanner.Text()
-			io.WriteString(conn, output)
+			execution.OutputChan <- output
 		}
-
 	}()
 
 	for {
-		time.Sleep(2 * time.Second)
 		execInspect, err := c.Client.ContainerExecInspect(ctx, execCreateResp.ID)
 		if err != nil {
 			return err
 		}
 		if !execInspect.Running {
-			fmt.Println("Program has finished execution")
+			execution.DoneChan <- true
 			break
 		}
+		time.Sleep(1 * time.Second)
 	}
-
 	return nil
 }
 

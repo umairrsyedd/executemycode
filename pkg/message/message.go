@@ -12,14 +12,15 @@ const (
 	Input  MessageType = "input"
 	Output MessageType = "output"
 	Error  MessageType = "error"
+	Done   MessageType = "done"
 	Close  MessageType = "close"
 )
 
 type Message struct {
-	ProgramId *int        `json:"programId"`
-	Type      MessageType `json:"type"`
-	Message   string      `json:"message"`
-	Language  string      `json:"language"`
+	ExecutionId int         `json:"execId"`
+	Type        MessageType `json:"type"`
+	Message     string      `json:"message,omitempty"`
+	Language    string      `json:"language,omitempty"`
 }
 
 func DecodeMessage(rawMessage []byte) (decodedMessage Message, err error) {
@@ -31,12 +32,7 @@ func DecodeMessage(rawMessage []byte) (decodedMessage Message, err error) {
 	return decodedMessage, nil
 }
 
-func EncodeMessage(messageType MessageType, message string) (encodedMessage []byte, err error) {
-	newMessage := Message{
-		Type:    messageType,
-		Message: message,
-	}
-
+func EncodeMessage(newMessage Message) (encodedMessage []byte, err error) {
 	encodedMessage, err = json.Marshal(newMessage)
 	if err != nil {
 		return nil, err

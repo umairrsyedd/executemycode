@@ -4,7 +4,7 @@ import (
 	"context"
 	"executemycode/internal/client"
 	"executemycode/internal/container"
-	"executemycode/internal/program"
+	"executemycode/internal/executer"
 	"executemycode/pkg/message"
 
 	"fmt"
@@ -16,20 +16,19 @@ import (
 
 func ConnectionHandler(clientManager *client.ClientRegistry, containerManager *container.ContainerOrc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqContext := r.Context()
-
 		client, err := clientManager.NewClient(w, r, nil)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("could not establish client connection : %v", err), http.StatusInternalServerError)
 			return
 		}
-		log.Printf("Client %s connected", client.Id)
+		fmt.Printf("Client %s connected", client.Id)
 
-		go listenForMessages(reqContext, client, containerManager)
+		go listenForMessages(client, containerManager)
 	}
 }
 
-func listenForMessages(ctx context.Context, client *client.Client, containerOrchestrator *container.ContainerOrc) {
+func listenForMessages(client *client.Client, containerOrc *container.ContainerOrc) {
+	defer client.CloseConnection()
 	for {
 		_, rawMessage, err := client.Conn.ReadMessage()
 		if err != nil {
@@ -41,35 +40,28 @@ func listenForMessages(ctx context.Context, client *client.Client, containerOrch
 			return
 		}
 
+		msgContext := context.TODO()
+
 		msg, err := message.DecodeMessage(rawMessage)
 		if err != nil {
 			log.Printf("error decoding message: %s", err)
+			return
 		}
 
 		switch msg.Type {
 		case message.Code:
-			ctx := context.TODO()
-			newProgram, err := program.New(program.Language(msg.Language), msg.Message)
+			newExecution := executer.NewExecution(msg.ExecutionId, msg.Language, msg.Message, client)
+			client.AddExecution(newExecution)
+			go containerOrc.ConnectAndExecute(msgContext, newExecution)
+			go newExecution.Listen()
+
+		case message.Input:
+			execution, err := client.GetExecution(msg.ExecutionId)
 			if err != nil {
-				log.Printf("error creating new program: %s", err)
-				break
+				fmt.Println(err)
+				continue
 			}
-			newProgram.Status = program.Executing
-
-			container, err := containerOrchestrator.GetAvailableContainer(ctx)
-			if err != nil {
-				log.Printf("error finding container: %s", err)
-				break
-			}
-
-			err = container.Execute(ctx, newProgram, msg.Message)
-			if err != nil {
-				log.Printf("error executing in container: %s", err)
-				break
-			}
-
-			// containerOrchestrator.ReturnContainer(container)
-
+			execution.FeedInput(msg.Message)
 		}
 
 	}

@@ -2,8 +2,9 @@ package container
 
 import (
 	"context"
-	"errors"
+	"executemycode/internal/executer"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/docker/docker/client"
@@ -49,33 +50,40 @@ func (m *ContainerOrc) initContainers(ctx context.Context, containerCount int) (
 	return nil
 }
 
-func (m *ContainerOrc) GetAvailableContainer(ctx context.Context) (*Container, error) {
+func (m *ContainerOrc) ConnectAndExecute(ctx context.Context, execution *executer.Execution) error {
 	startTime := time.Now()
 
 	for {
 		select {
 		case container := <-m.idleQueue:
 			if container == nil {
-				return nil, errors.New("no available idle containers")
+				return fmt.Errorf("no available idle containers")
 			}
 			container.setStatus(Active)
-			return container, nil
+
+			defer func(container *Container) {
+				container.setStatus(Idle)
+				m.idleQueue <- container
+			}(container)
+
+			err := container.execute(ctx, execution)
+			if err != nil {
+				log.Printf("error from container execute: %s", err)
+				return err
+			}
+			return nil
 
 		case <-time.After(m.maxExecWaitTime):
 			if time.Since(startTime) > m.maxExecWaitTime {
-				return nil, errors.New("timed out waiting for an available container")
+				log.Printf("timed out waiting for an available container")
+				return fmt.Errorf("timed out waiting for an available container")
 			}
 
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			log.Printf("ctx cancelled when connecting to container")
+			return ctx.Err()
 		}
 	}
-}
-
-func (m *ContainerOrc) ReturnContainer(container *Container) {
-	container.setStatus(Idle)
-	m.idleQueue <- container
-	//TODO: Add a cleanup of the container before returning it to the queue
 }
 
 func (m *ContainerOrc) Cleanup(ctx context.Context) {
