@@ -55,13 +55,14 @@ func new(ctx context.Context, client *client.Client, containerName string) (crea
 }
 
 func (c *Container) execute(ctx context.Context, execution *executer.Execution) (err error) {
-	err = c.copyToContainer(ctx, []byte(execution.ExecutionInfo.SourceCode), "sample.go") // TODO: Remove Hardcoding
+	fileName := fmt.Sprintf("sample%s", execution.ExecutionInfo.FileExtension)
+	err = c.copyToContainer(ctx, []byte(execution.ExecutionInfo.SourceCode), fileName)
 	if err != nil {
 		return err
 	}
 
 	execCreateResp, err := c.Client.ContainerExecCreate(ctx, c.ContainerId, types.ExecConfig{
-		Cmd:          []string{"go", "run", "sample.go"}, // TODO: Remove Hardcoding
+		Cmd:          append(execution.ExecutionInfo.Cmd, fileName),
 		Tty:          true,
 		AttachStdin:  true,
 		AttachStdout: true,
@@ -72,7 +73,8 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 	}
 
 	execResp, err := c.Client.ContainerExecAttach(ctx, execCreateResp.ID, types.ExecStartCheck{
-		Tty: true,
+		Tty:    true,
+		Detach: false,
 	})
 	if err != nil {
 		return err
@@ -85,7 +87,6 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 			if !ok {
 				return
 			}
-			fmt.Printf("I'm writing this input to the container: %v\n", input)
 			_, err := execResp.Conn.Write([]byte(input))
 			if err != nil {
 				fmt.Printf("error writing to container: %v", err)
@@ -94,8 +95,7 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 	}()
 
 	go func() {
-		scanner := bufio.NewScanner(execResp.Reader)
-		scanner.Split(bufio.ScanBytes)
+		scanner := bufio.NewScanner(execResp.Conn)
 		for scanner.Scan() {
 			output := scanner.Text()
 			execution.OutputChan <- output
@@ -108,10 +108,10 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 			return err
 		}
 		if !execInspect.Running {
-			execution.DoneChan <- true
+			execution.ExitCode <- execInspect.ExitCode
 			break
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 	return nil
 }

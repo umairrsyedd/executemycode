@@ -2,6 +2,7 @@ package executer
 
 import (
 	"executemycode/pkg/message"
+	"fmt"
 	"io"
 	"log"
 )
@@ -17,7 +18,7 @@ type Execution struct {
 	InputChan     chan string
 	OutputChan    chan string
 	OutputWriter  io.Writer
-	DoneChan      chan bool
+	ExitCode      chan int
 }
 
 type ExecutionInfo struct {
@@ -33,13 +34,13 @@ func NewExecution(execId int, language string, code string, outputWriter io.Writ
 		ExecutionInfo: ExecutionInfo{
 			ProgramLanguage: ProgramLanguage(language),
 			SourceCode:      code,
-			FileExtension:   GetFileExtension(ProgramLanguage(language)),
-			Cmd:             GetCmd(ProgramLanguage(language)),
+			FileExtension:   getFileExtension(ProgramLanguage(language)),
+			Cmd:             getCmd(ProgramLanguage(language)),
 		},
 		InputChan:    make(chan string),
 		OutputChan:   make(chan string),
 		OutputWriter: outputWriter,
-		DoneChan:     make(chan bool),
+		ExitCode:     make(chan int),
 	}
 }
 
@@ -57,14 +58,14 @@ func (e *Execution) Listen() {
 				Message:     output,
 			}
 			e.SendMessage(msg)
-		case executionDone := <-e.DoneChan:
-			if executionDone {
-				msg := message.Message{
-					ExecutionId: e.ExecId,
-					Type:        message.Done,
-				}
-				e.SendMessage(msg)
+		case exitCode := <-e.ExitCode:
+			msg := message.Message{
+				ExecutionId: e.ExecId,
+				Type:        message.Done,
+				Message:     fmt.Sprintf("\n...Program finished with exit code %d", exitCode),
 			}
+			e.SendMessage(msg)
+			return
 		}
 	}
 

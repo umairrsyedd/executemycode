@@ -61,7 +61,7 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 				fmt.Println(err)
 				continue
 			}
-			execution.FeedInput(msg.Message)
+			go execution.FeedInput(msg.Message)
 		}
 
 	}

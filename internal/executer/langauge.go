@@ -12,7 +12,7 @@ const (
 	Java       ProgramLanguage = "java"
 )
 
-func GetFileExtension(language ProgramLanguage) string {
+func getFileExtension(language ProgramLanguage) string {
 	switch language {
 	case Golang:
 		return ".go"
@@ -33,7 +33,7 @@ func GetFileExtension(language ProgramLanguage) string {
 	}
 }
 
-func GetCmd(language ProgramLanguage) []string {
+func getCmd(language ProgramLanguage) []string {
 	switch language {
 	case Golang:
 		return []string{"go", "run"}
