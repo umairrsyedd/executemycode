@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"executemycode/internal/client"
 	"executemycode/internal/container"
 	"executemycode/internal/executer"
@@ -40,8 +39,6 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 			return
 		}
 
-		msgContext := context.TODO()
-
 		msg, err := message.DecodeMessage(rawMessage)
 		if err != nil {
 			log.Printf("error decoding message: %s", err)
@@ -52,8 +49,8 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 		case message.Code:
 			newExecution := executer.NewExecution(msg.ExecutionId, msg.Language, msg.Message, client)
 			client.AddExecution(newExecution)
-			go containerOrc.ConnectAndExecute(msgContext, newExecution)
-			go newExecution.Listen()
+			go containerOrc.ConnectAndExecute(newExecution)
+			go newExecution.ListenForOutput()
 
 		case message.Input:
 			execution, err := client.GetExecution(msg.ExecutionId)
@@ -62,6 +59,14 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 				continue
 			}
 			go execution.FeedInput(msg.Message)
+
+		case message.Done:
+			execution, err := client.GetExecution(msg.ExecutionId)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			execution.Done()
 		}
 
 	}

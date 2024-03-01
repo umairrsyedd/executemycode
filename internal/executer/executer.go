@@ -7,11 +7,6 @@ import (
 	"log"
 )
 
-type Executer interface {
-	StartExecution() error
-	FeedInput() error
-}
-
 type Execution struct {
 	ExecId        int
 	ExecutionInfo ExecutionInfo
@@ -48,7 +43,7 @@ func (e *Execution) FeedInput(input string) {
 	e.InputChan <- input
 }
 
-func (e *Execution) Listen() {
+func (e *Execution) ListenForOutput() {
 	for {
 		select {
 		case output := <-e.OutputChan:
@@ -94,4 +89,10 @@ func (e *Execution) Read(p []byte) (n int, err error) {
 	default:
 		return 0, nil
 	}
+}
+
+func (e *Execution) Done() {
+	close(e.InputChan)
+	close(e.OutputChan)
+	close(e.ExitCode)
 }

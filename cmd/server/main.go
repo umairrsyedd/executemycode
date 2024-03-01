@@ -33,7 +33,10 @@ func main() {
 	execWait, _ := strconv.Atoi(os.Getenv("MAX_WAIT_TIME_MINS"))
 	execWaitTime := execWait * int(time.Second)
 
-	containerOrchestrator, err := container.New(ctx, containerCount, time.Duration(execWaitTime))
+	execTimeout, _ := strconv.Atoi(os.Getenv("EXEC_TIMEOUT_MINS"))
+	execTimeOutTime := execTimeout * int(time.Second)
+
+	containerOrchestrator, err := container.New(ctx, containerCount, time.Duration(execWaitTime), time.Duration(execTimeOutTime))
 	if err != nil {
 		log.Fatalf("Error Init Container Manager: %s", err)
 	}

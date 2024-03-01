@@ -15,9 +15,10 @@ type ContainerOrc struct {
 	containers      []Container
 	idleQueue       chan *Container
 	maxExecWaitTime time.Duration
+	execTimeout     time.Duration
 }
 
-func New(ctx context.Context, containerCount int, maxExecWaitTime time.Duration) (manager *ContainerOrc, err error) {
+func New(ctx context.Context, containerCount int, maxExecWaitTime time.Duration, execTimeout time.Duration) (manager *ContainerOrc, err error) {
 	client, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return &ContainerOrc{}, nil
@@ -28,6 +29,7 @@ func New(ctx context.Context, containerCount int, maxExecWaitTime time.Duration)
 		containers:      make([]Container, containerCount),
 		idleQueue:       make(chan *Container, containerCount),
 		maxExecWaitTime: maxExecWaitTime,
+		execTimeout:     execTimeout,
 	}
 
 	err = manager.initContainers(ctx, containerCount)
@@ -50,9 +52,11 @@ func (m *ContainerOrc) initContainers(ctx context.Context, containerCount int) (
 	return nil
 }
 
-func (m *ContainerOrc) ConnectAndExecute(ctx context.Context, execution *executer.Execution) error {
+func (m *ContainerOrc) ConnectAndExecute(execution *executer.Execution) error {
 	startTime := time.Now()
 
+	executionCtx, cancel := context.WithTimeout(context.Background(), m.execTimeout)
+	defer cancel()
 	for {
 		select {
 		case container := <-m.idleQueue:
@@ -66,7 +70,7 @@ func (m *ContainerOrc) ConnectAndExecute(ctx context.Context, execution *execute
 				m.idleQueue <- container
 			}(container)
 
-			err := container.execute(ctx, execution)
+			err := container.execute(executionCtx, execution)
 			if err != nil {
 				log.Printf("error from container execute: %s", err)
 				return err
@@ -79,9 +83,9 @@ func (m *ContainerOrc) ConnectAndExecute(ctx context.Context, execution *execute
 				return fmt.Errorf("timed out waiting for an available container")
 			}
 
-		case <-ctx.Done():
-			log.Printf("ctx cancelled when connecting to container")
-			return ctx.Err()
+		case <-executionCtx.Done():
+			log.Printf("execution context is done")
+			return executionCtx.Err()
 		}
 	}
 }
