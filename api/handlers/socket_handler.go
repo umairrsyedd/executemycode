@@ -32,7 +32,7 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 	for {
 		_, rawMessage, err := client.Conn.ReadMessage()
 		if err != nil {
-			if websocket.IsCloseError(err) {
+			if websocket.IsCloseError(err) || websocket.IsUnexpectedCloseError(err) {
 				log.Printf("client connection closed for client %s: %v", client.Id, err)
 			} else {
 				log.Printf("error reading message from client %s: %v", client.Id, err)

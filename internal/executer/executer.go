@@ -62,7 +62,7 @@ func (e *Execution) Listen() {
 			msg := message.Message{
 				ExecutionId: e.ExecId,
 				Type:        message.Done,
-				Message:     fmt.Sprintf("\n...Program finished with exit code %d", exitCode),
+				Message:     fmt.Sprintf("...Program finished with exit code %d", exitCode),
 			}
 			e.SendMessage(msg)
 			return
@@ -82,4 +82,16 @@ func (e *Execution) SendMessage(msg message.Message) {
 		log.Printf("Couldn't Forward Output for Execution Id: %d", e.ExecId)
 	}
 
+}
+
+func (e *Execution) Read(p []byte) (n int, err error) {
+	select {
+	case input, ok := <-e.InputChan:
+		if !ok {
+			return 0, io.EOF
+		}
+		return copy(p, []byte(input)), nil
+	default:
+		return 0, nil
+	}
 }

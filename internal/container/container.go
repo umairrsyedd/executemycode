@@ -81,19 +81,18 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 	}
 	defer execResp.Close()
 
+	// Input Go Routine
 	go func() {
 		for {
 			input, ok := <-execution.InputChan
 			if !ok {
 				return
 			}
-			_, err := execResp.Conn.Write([]byte(input))
-			if err != nil {
-				fmt.Printf("error writing to container: %v", err)
-			}
+			fmt.Fprintln(execResp.Conn, input)
 		}
 	}()
 
+	// Output Go Routine
 	go func() {
 		scanner := bufio.NewScanner(execResp.Conn)
 		for scanner.Scan() {
