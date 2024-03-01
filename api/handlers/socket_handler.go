@@ -45,6 +45,18 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 			return
 		}
 
+		err = msg.Validate()
+		if err != nil {
+			errMsg := message.Message{
+				Type:    message.Error,
+				Message: err.Error(),
+			}
+
+			encodedErrMessage, _ := message.EncodeMessage(errMsg)
+			client.Write([]byte(encodedErrMessage))
+			continue
+		}
+
 		switch msg.Type {
 		case message.Code:
 			newExecution := executer.NewExecution(msg.ExecutionId, msg.Language, msg.Message, client)

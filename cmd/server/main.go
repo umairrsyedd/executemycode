@@ -31,10 +31,10 @@ func main() {
 
 	containerCount, _ := strconv.Atoi(os.Getenv("CONTAINER_COUNT"))
 	execWait, _ := strconv.Atoi(os.Getenv("MAX_WAIT_TIME_MINS"))
-	execWaitTime := execWait * int(time.Second)
+	execWaitTime := execWait * int(time.Minute)
 
 	execTimeout, _ := strconv.Atoi(os.Getenv("EXEC_TIMEOUT_MINS"))
-	execTimeOutTime := execTimeout * int(time.Second)
+	execTimeOutTime := execTimeout * int(time.Minute)
 
 	containerOrchestrator, err := container.New(ctx, containerCount, time.Duration(execWaitTime), time.Duration(execTimeOutTime))
 	if err != nil {

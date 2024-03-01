@@ -8,12 +8,15 @@ import (
 type MessageType string
 
 const (
-	Code   MessageType = "code"
-	Input  MessageType = "input"
+	// Sent From Client
+	Code  MessageType = "code"
+	Input MessageType = "input"
+	Close MessageType = "close"
+
+	// Sent From Server
 	Output MessageType = "output"
-	Error  MessageType = "error"
 	Done   MessageType = "done"
-	Close  MessageType = "close"
+	Error  MessageType = "error"
 )
 
 type Message struct {
@@ -41,14 +44,35 @@ func EncodeMessage(newMessage Message) (encodedMessage []byte, err error) {
 	return encodedMessage, nil
 }
 
-func (m Message) IsCode() bool {
-	return m.Type == Code
-}
+func (m *Message) Validate() error {
+	if m.Type == "" {
+		return fmt.Errorf("message type must be present")
+	}
 
-func (m Message) IsInput() bool {
-	return m.Type == Input
-}
+	if m.Message == "" {
+		return fmt.Errorf("message cannot be empty")
+	}
 
-func (m Message) IsClose() bool {
-	return m.Type == Close
+	switch m.Type {
+	case Code:
+		if m.ExecutionId == 0 {
+			return fmt.Errorf("execution id must be present for code message")
+		}
+
+		if m.Language == "" {
+			return fmt.Errorf("langauge must be present for code message")
+		}
+
+	case Input:
+		if m.ExecutionId == 0 {
+			return fmt.Errorf("execution id must be present for input message")
+		}
+
+	case Close:
+		if m.ExecutionId == 0 {
+			return fmt.Errorf("execution id must be present for close message")
+		}
+	}
+
+	return nil
 }
