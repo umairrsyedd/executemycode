@@ -1,0 +1,20 @@
+.page {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+}
+
+.main_area {
+  display: flex;
+  height: 100%;
+}
+
+.nav {
+  height: 5%;
+}
+
+.console {
+  width: 30%;
+  height: 100%;
+  border: 1px solid black;
+}
