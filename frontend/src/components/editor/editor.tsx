@@ -1,5 +1,7 @@
 "use client";
 
-export const Editor = () => {
-  return <h1> Editor </h1>;
-};
+import styles from "./editor.module.css";
+
+export default function Editor() {
+  return <div className={styles.editor}></div>;
+}

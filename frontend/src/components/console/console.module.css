@@ -1,0 +1,10 @@
+.console {
+  width: 25%;
+  min-width: 10%;
+  height: 100%;
+  overflow: auto;
+  background-color: grey;
+  color: white;
+  flex-grow: 1;
+  border-radius: 5px;
+}
