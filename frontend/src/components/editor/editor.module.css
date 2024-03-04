@@ -1,7 +1,6 @@
 .editor {
   width: 75%;
   min-width: 40%;
-  height: 100%;
   color: white;
   resize: horizontal;
   overflow: auto;
