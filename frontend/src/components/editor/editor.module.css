@@ -10,4 +10,7 @@
 }
 
 .editor_top_bar {
+  color: white;
+  padding: 1rem;
+  background-color: black;
 }
