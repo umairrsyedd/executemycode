@@ -1,5 +1,8 @@
 .navbar {
+  color: white;
   width: 100%;
-  border: 1px solid purple;
-  background-color: white;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px;
 }

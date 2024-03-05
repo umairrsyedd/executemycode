@@ -2,8 +2,8 @@
   width: 25%;
   min-width: 10%;
   overflow: auto;
-  background-color: grey;
   color: white;
+  background-color: #1e1e1e;
   flex-grow: 1;
   border-radius: 5px;
 }
