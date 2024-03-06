@@ -1,9 +1,9 @@
 .console {
-  width: 25%;
-  min-width: 10%;
+  height: 75%;
+  min-height: 30%;
+  max-height: 75%;
+  resize: vertical;
   overflow: auto;
-  color: white;
   background-color: #1e1e1e;
-  flex-grow: 1;
-  border-radius: 5px;
+  margin-bottom: 0.5rem;
 }

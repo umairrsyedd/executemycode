@@ -1,6 +1,7 @@
 import Navbar from "@/components/navbar/navbar";
 import Editor from "@/components/editor/editor";
 import Console from "@/components/console/console";
+import Notepad from "@/components/notepad/notepad";
 
 import styles from "./page.module.css";
 
@@ -12,7 +13,10 @@ export default function Page() {
       </div>
       <div className={styles.main_area}>
         <Editor />
-        <Console />
+        <div className={styles.main_area_right}>
+          <Console />
+          <Notepad />
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 .editor {
   width: 75%;
   min-width: 40%;
-  color: white;
   resize: horizontal;
   overflow: auto;
   background-color: #23262e;
@@ -9,8 +8,9 @@
   margin-right: 0.5rem;
 }
 
-.editor_top_bar {
-  color: white;
-  padding: 1rem;
+.section_tab {
   background-color: black;
+  display: inline;
+  padding: 1rem;
+  border-bottom: 1px solid #555555;
 }

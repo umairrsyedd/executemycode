@@ -7,10 +7,23 @@
 
 .main_area {
   display: flex;
-  height: 94.5%;
+  height: 94%;
+  padding: 0.5rem;
+}
+
+.main_area_right {
+  width: 25%;
+  min-width: 10%;
+  overflow: auto;
+  color: white;
+  flex-grow: 1;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 .nav_container {
   display: flex;
-  height: 5%;
+  height: 6%;
+  padding: 1rem;
 }
