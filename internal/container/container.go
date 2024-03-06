@@ -101,6 +101,7 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 		}
 	}()
 
+	// TODO: Add a Close Mechanism to handle termination when client sends Close
 	for {
 		execInspect, err := c.Client.ContainerExecInspect(ctx, execCreateResp.ID)
 		if err != nil {
