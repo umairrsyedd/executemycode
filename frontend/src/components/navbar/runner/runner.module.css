@@ -1,0 +1,39 @@
+.run_container {
+  background-color: #1c463e;
+}
+
+.stop_container {
+  background-color: #353535;
+}
+
+.loading_container {
+  background-color: #353535;
+}
+
+.run_container:hover {
+  cursor: pointer;
+  background-color: #4ec9b0;
+}
+
+.stop_container:hover {
+  cursor: pointer;
+  background-color: #4d4d4d;
+}
+
+.run_container,
+.stop_container,
+.loading_container {
+  outline: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.runner_text {
+  margin-left: 8px;
+}

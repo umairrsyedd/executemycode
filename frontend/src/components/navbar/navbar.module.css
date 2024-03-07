@@ -22,21 +22,11 @@
   justify-content: space-between;
 }
 
-.run_container {
-  background-color: #1c463e;
-}
-
-.run_container:hover {
-  cursor: pointer;
-  background-color: #4ec9b0;
-}
-
 .invite_container:hover {
   cursor: pointer;
   background-color: #353535;
 }
 
-.run_container,
 .invite_container {
   outline: none;
   border: none;
@@ -49,7 +39,6 @@
   border-radius: 6px;
 }
 
-.run_text,
 .invite_text {
   margin-left: 8px;
 }

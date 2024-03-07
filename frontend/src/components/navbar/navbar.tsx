@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import FileName from "./filename";
 import InviteButton from "./invite_button";
 import LanguageSelect from "./language_select";
 import styles from "./navbar.module.css";
-import RunButton from "./run_button";
+import RunButton from "./runner/run_button";
+import StopButton from "./runner/stop_button";
+import Runner from "./runner/runner";
 
 export default function Navbar({ setCurrentLanguage }) {
   return (
@@ -14,7 +17,7 @@ export default function Navbar({ setCurrentLanguage }) {
         <LanguageSelect setCurrentLanguage={setCurrentLanguage} />
       </div>
       <div className={styles.navbar_section_right}>
-        <RunButton />
+        <Runner />
         <InviteButton />
       </div>
     </div>
