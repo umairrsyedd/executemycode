@@ -1,13 +1,8 @@
-type Langauge = {
-  Name: string;
-  Logo: any;
-};
-
-const languages: Langauge[] = [
-  { Name: "JavaScript" },
-  { Name: "Golang" },
-  { Name: "Rust" },
-  { Name: "C++" },
-  { Name: "Java" },
-  { Name: "C" },
-];
+export enum LanguageName {
+  JavaScript = "JavaScript",
+  Golang = "Golang",
+  Rust = "Rust",
+  CPlusPlus = "CPlusPlus",
+  Java = "Java",
+  C = "C",
+}

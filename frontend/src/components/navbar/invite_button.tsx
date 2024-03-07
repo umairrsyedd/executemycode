@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function InviteButton() {
   return (
     <button className={styles.invite_container}>
-      <Image src={InviteIcon} height={15} />
+      <Image src={InviteIcon} height={15} alt="Invite" />
       <div className={styles.invite_text}>Invite</div>
     </button>
   );
