@@ -72,8 +72,6 @@ export default function ResizableContainer({
     height:
       orientation === Orientation.Vertical ? `${currentPercent}%` : undefined,
     flexDirection: orientation === Orientation.Horizontal ? `row` : `column`,
-    marginRight: orientation === Orientation.Horizontal ? `0.5rem` : undefined,
-    marginBottom: orientation === Orientation.Vertical ? `0.5rem` : undefined,
   };
 
   return (
