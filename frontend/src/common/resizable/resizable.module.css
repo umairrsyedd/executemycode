@@ -1,14 +1,16 @@
 .resizer_horizontal,
 .resizer_vertical {
-  background-color: pink;
+  background-color: var(--resizable-bar-colour);
 }
 
 .resizer_horizontal {
   width: 2px;
   cursor: ew-resize;
+  margin-right: 0.5rem;
 }
 
 .resizer_vertical {
   height: 2px;
   cursor: ns-resize;
+  margin-bottom: 0.5rem;
 }

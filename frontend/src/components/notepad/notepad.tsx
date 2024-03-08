@@ -6,7 +6,7 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 export default function Notepad() {
-  const [value, setValue] = useState("Jot down some notes...");
+  const [value, setValue] = useState("");
   const toolbarOptions = [
     { size: ["small", "normal", "large"] },
     "bold",
@@ -30,6 +30,7 @@ export default function Notepad() {
           value={value}
           onChange={setValue}
           modules={{ toolbar: toolbarOptions }}
+          placeholder="Jot down some notes..."
         />
       </div>
     </>

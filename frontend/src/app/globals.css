@@ -2,6 +2,23 @@
   --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
     "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+  --background-colour: #020202;
+  --text-primary: white;
+  --text-secondary: white;
+  --resizable-bar-colour: pink;
+  --console-background-colour: #23262e;
+  --editor-background-colour: #23262e;
+  --notepad-background-colour: #23262e;
+}
+
+[data-theme="light"] {
+  --background-colour: #fafafa;
+  --text-primary: black;
+  --text-secondary: black;
+  --console-background-colour: #e4e5f1;
+  --editor-background-colour: white;
+  --notepad-background-colour: white;
 }
 
 * {

@@ -15,11 +15,16 @@
 .navbar_section_right {
   width: 100%;
   display: flex;
-  align-items: baseline;
+  align-items: center;
 }
 
 .navbar_section_right {
   justify-content: space-between;
+}
+
+.navbar_section_right_right {
+  display: flex;
+  align-items: center;
 }
 
 .invite_container:hover {
@@ -37,6 +42,14 @@
   color: white;
   padding: 8px;
   border-radius: 6px;
+  height: 100%;
+  background-color: #1e1e1e;
+}
+
+.theme_toggler {
+  margin-right: 2rem;
+  padding: 8px;
+  border-radius: 6px;
 }
 
 .invite_text {
@@ -52,14 +65,14 @@
   margin-left: 1.5rem;
 }
 
-.invite_container {
-  background-color: #1e1e1e;
-}
-
 .filename {
   outline: none;
   width: 20%;
   max-width: 20%;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.theme_toggler:hover {
+  cursor: pointer;
 }
