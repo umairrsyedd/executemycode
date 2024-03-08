@@ -1,0 +1,14 @@
+.resizer_horizontal,
+.resizer_vertical {
+  background-color: pink;
+}
+
+.resizer_horizontal {
+  width: 2px;
+  cursor: ew-resize;
+}
+
+.resizer_vertical {
+  height: 2px;
+  cursor: ns-resize;
+}

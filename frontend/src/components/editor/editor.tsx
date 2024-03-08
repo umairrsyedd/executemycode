@@ -4,7 +4,7 @@ import styles from "./editor.module.css";
 import CodeMirror from "@uiw/react-codemirror";
 import { andromeda } from "@uiw/codemirror-theme-andromeda";
 import { langaugeMetadata } from "./langauge_metadata";
-import { LanguageName } from "@/common/languages";
+import { LanguageName } from "@/constants/languages";
 
 export default function EditorComponent({ currentLanguage }) {
   var languageMetadata = langaugeMetadata.get(currentLanguage);

@@ -1,4 +1,4 @@
-import { LanguageName } from "@/common/languages";
+import { LanguageName } from "@/constants/languages";
 import { StreamLanguage } from "@codemirror/language";
 import { langs } from "@uiw/codemirror-extensions-langs";
 

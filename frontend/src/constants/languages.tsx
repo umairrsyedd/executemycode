@@ -6,3 +6,5 @@ export enum LanguageName {
   Java = "Java",
   C = "C",
 }
+
+export const DefaultLanguage = LanguageName.JavaScript;

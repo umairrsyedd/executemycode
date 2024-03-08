@@ -1,16 +1,22 @@
 "use client";
 
+import _ from "lodash";
+
 import Navbar from "@/components/navbar/navbar";
 import Editor from "@/components/editor/editor";
 import Console from "@/components/console/console";
 import Notepad from "@/components/notepad/notepad";
 
 import styles from "./page.module.css";
-import { LanguageName } from "@/common/languages";
-import { useState } from "react";
+import { LanguageName, DefaultLanguage } from "@/constants/languages";
+import { useRef, useState } from "react";
+import ResizableContainer, {
+  Orientation,
+} from "@/common/resizable/resizable_container";
 
 export default function Page() {
-  let [currentLanguage, setCurrentLanguage] = useState(LanguageName.JavaScript);
+  const [currentLanguage, setCurrentLanguage] = useState(DefaultLanguage);
+
   return (
     <div className={styles.page}>
       <div className={styles.nav_container}>
@@ -20,9 +26,25 @@ export default function Page() {
         />
       </div>
       <div className={styles.main_area}>
-        <Editor currentLanguage={currentLanguage} />
+        <ResizableContainer
+          orientation={Orientation.Horizontal}
+          initialPercent={75}
+          minSizePercent={30}
+          maxSizePercent={75}
+          throttleResize={16}
+        >
+          <Editor currentLanguage={currentLanguage} />
+        </ResizableContainer>
         <div className={styles.main_area_right}>
-          <Console />
+          <ResizableContainer
+            orientation={Orientation.Vertical}
+            initialPercent={75}
+            minSizePercent={20}
+            maxSizePercent={75}
+            throttleResize={16}
+          >
+            <Console />
+          </ResizableContainer>
           <Notepad />
         </div>
       </div>

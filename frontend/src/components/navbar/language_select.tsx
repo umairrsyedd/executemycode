@@ -1,4 +1,4 @@
-import { LanguageName } from "@/common/languages";
+import { LanguageName } from "@/constants/languages";
 import styles from "./navbar.module.css";
 
 export default function LanguageSelect({
