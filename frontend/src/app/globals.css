@@ -35,8 +35,8 @@ body {
 }
 
 body {
-  /* color: rgb(var(--foreground-rgb));
-  background: #020202; */
+  color: var(--text-primary);
+  background: var(--background-colour);
 }
 
 a {

@@ -2,14 +2,13 @@
   background-color: var(--background-colour);
   color: var(--text-primary);
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 6px 0px 6px 0px;
   border-radius: 5px;
   font-size: 0.8rem;
   padding: 0.5rem;
-  height: 100%;
 }
 
 .navbar_section_left,
@@ -76,6 +75,11 @@
   white-space: nowrap;
   overflow: hidden;
   font-weight: 600;
+}
+
+.theme_toggler {
+  margin-top: 5px;
+  height: 100%;
 }
 
 .theme_toggler:hover {
