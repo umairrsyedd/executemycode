@@ -1,11 +1,6 @@
 import { LanguageName } from "@/constants/languages";
-import { Language, StreamLanguage } from "@codemirror/language";
+import { Language } from "@codemirror/language";
 import { langs } from "@uiw/codemirror-extensions-langs";
-
-type LangaugeMetadata = {
-  streamLanguage: any;
-  sampleCode: string;
-};
 
 export let extensionMap = new Map<Language, any>([
   [LanguageName.JavaScript, langs.javascript],
