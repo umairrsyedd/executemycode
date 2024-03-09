@@ -1,5 +1,6 @@
 .navbar {
-  color: white;
+  background-color: var(--background-colour);
+  color: var(--text-primary);
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -63,14 +64,18 @@
   height: 100%;
   font-weight: 600;
   margin-left: 1.5rem;
+  background-color: var(--text-primary);
+  color: var(--background-colour);
 }
 
 .filename {
+  color: var(--text-primary);
   outline: none;
   width: 20%;
   max-width: 20%;
   white-space: nowrap;
   overflow: hidden;
+  font-weight: 600;
 }
 
 .theme_toggler:hover {

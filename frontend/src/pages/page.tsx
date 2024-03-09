@@ -48,7 +48,7 @@ export default function Page() {
           <div className={styles.main_area_right}>
             <ResizableContainer
               orientation={Orientation.Vertical}
-              initialPercent={90}
+              initialPercent={50}
               minSizePercent={20}
               maxSizePercent={90}
             >

@@ -3,7 +3,7 @@
   flex-grow: 1;
   background-color: var(--notepad-background-colour);
   outline: none;
-  color: white;
+  color: var(--text-primary);
   max-height: 100%;
   overflow: scroll;
 }

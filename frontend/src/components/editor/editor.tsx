@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./editor.module.css";
-import CodeMirror from "@uiw/react-codemirror";
+import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { andromeda } from "@uiw/codemirror-theme-andromeda";
 import { quietlight } from "@uiw/codemirror-theme-quietlight";
 import { langaugeMetadata } from "./langauge_metadata";
@@ -20,7 +20,10 @@ export default function EditorComponent({ currentLanguage }) {
     <div className={styles.editor}>
       <CodeMirror
         value={languageMetadata?.sampleCode}
-        extensions={[languageMetadata?.streamLanguage()]}
+        extensions={[
+          languageMetadata?.streamLanguage(),
+          EditorView.lineWrapping,
+        ]}
         theme={theme === Themes.Dark ? andromeda : quietlight}
         style={editorStyle}
         height="100vh"
