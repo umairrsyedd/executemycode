@@ -6,7 +6,6 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 
 export default function Toggler({ onToggle }) {
   const [theme] = useLocalStorage("theme");
-  console.log(theme);
 
   const handleToggle = () => {
     onToggle();

@@ -6,7 +6,7 @@
 
 .main_area {
   display: flex;
-  height: 94%;
+  height: 95%;
   padding: 0.5rem;
 }
 
@@ -17,6 +17,6 @@
   flex-direction: column;
 }
 .nav_container {
-  height: 6%;
+  height: 5%;
   padding: 0.5rem;
 }

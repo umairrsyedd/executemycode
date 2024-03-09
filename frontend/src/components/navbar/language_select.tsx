@@ -19,11 +19,9 @@ export default function LanguageSelect({
       onChange={handleLanguageChange}
     >
       {languages.map((key, index) => (
-        <>
-          <option key={index} value={key}>
-            {key}
-          </option>
-        </>
+        <option key={index} value={key}>
+          {key}
+        </option>
       ))}
     </select>
   );
