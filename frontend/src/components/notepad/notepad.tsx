@@ -23,16 +23,14 @@ export default function Notepad() {
     },
   };
   return (
-    <>
-      <div className={styles.notepad}>
-        <ReactQuill
-          theme="snow"
-          value={value}
-          onChange={setValue}
-          modules={{ toolbar: toolbarOptions }}
-          placeholder="Jot down some notes..."
-        />
-      </div>
-    </>
+    <div className={styles.notepad}>
+      <ReactQuill
+        theme="snow"
+        value={value}
+        onChange={setValue}
+        modules={{ toolbar: toolbarOptions }}
+        placeholder="Jot down some notes..."
+      />
+    </div>
   );
 }
