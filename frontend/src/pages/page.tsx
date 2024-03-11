@@ -2,17 +2,17 @@
 
 import _ from "lodash";
 
-import Navbar from "@/components/navbar/navbar";
-import Editor from "@/components/editor/editor";
-import Console from "@/components/console/console";
-import Notepad from "@/components/notepad/notepad";
+import Navbar from "@/sections/navbar/navbar";
+import Editor from "@/sections/editor/editor";
+import Console from "@/sections/console/console";
+import Notepad from "@/sections/notepad/notepad";
 
 import styles from "./page.module.css";
 import { LanguageName, DefaultLanguage } from "@/constants/languages";
 import { useRef, useState } from "react";
 import ResizableContainer, {
   Orientation,
-} from "@/common/resizable/resizable_container";
+} from "@/components/resizable/resizable_container";
 import { ThemeContext, Themes } from "@/context/theme";
 import { useLocalStorage } from "@uidotdev/usehooks";
 
