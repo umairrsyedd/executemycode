@@ -1,4 +1,4 @@
-import styles from "./runner.module.css";
+import styles from "./executer.module.css";
 
 import StopLogo from "../../../../public/Stop_Button.svg";
 import Image from "next/image";
