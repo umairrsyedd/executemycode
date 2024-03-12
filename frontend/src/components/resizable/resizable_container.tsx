@@ -8,6 +8,9 @@ export const enum Orientation {
   Vertical = "Y",
 }
 
+// TODO: 1. Maybe Use Pixels instead of Percent.
+// TODO: 2. Try to Rely on Vanilla Dom Manupulation.
+
 export default function ResizableContainer({
   orientation,
   initialPercent,

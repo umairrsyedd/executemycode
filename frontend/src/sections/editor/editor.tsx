@@ -26,7 +26,7 @@ export default function EditorComponent({ currentLanguage }) {
         ]}
         theme={theme === Themes.Dark ? andromeda : quietlight}
         style={editorStyle}
-        height="100vh"
+        height="90vh"
       />
     </div>
   );

@@ -4,7 +4,7 @@ import Page from "../pages/page";
 export default function RenderApp() {
   return (
     <StrictMode>
-      <Page />;
+      <Page />
     </StrictMode>
   );
 }

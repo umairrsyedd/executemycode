@@ -5,5 +5,5 @@
   outline: none;
   color: var(--text-primary);
   max-height: 100%;
-  overflow: scroll;
+  overflow: auto;
 }
