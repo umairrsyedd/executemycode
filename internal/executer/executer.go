@@ -11,6 +11,7 @@ type Execution struct {
 	ExecutionInfo ExecutionInfo
 	InputChan     chan string
 	OutputChan    chan string
+	StopChan      chan bool
 	OutputWriter  io.Writer
 	ExitCode      chan int
 }
@@ -88,6 +89,7 @@ func (e *Execution) Read(p []byte) (n int, err error) {
 }
 
 func (e *Execution) Done() {
+	e.StopChan <- true
 	close(e.InputChan)
 	close(e.OutputChan)
 	close(e.ExitCode)

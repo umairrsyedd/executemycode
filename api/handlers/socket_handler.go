@@ -20,7 +20,7 @@ func ConnectionHandler(clientManager *client.ClientRegistry, containerManager *c
 			http.Error(w, fmt.Sprintf("could not establish client connection : %v", err), http.StatusInternalServerError)
 			return
 		}
-		fmt.Printf("Client %s connected", client.Id)
+		fmt.Printf("Client %s connected\n", client.Id)
 
 		go listenForMessages(client, containerManager)
 	}

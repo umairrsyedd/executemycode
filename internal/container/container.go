@@ -101,19 +101,25 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 		}
 	}()
 
-	// TODO: Add a Close Mechanism to handle termination when client sends Close
 	for {
-		execInspect, err := c.Client.ContainerExecInspect(ctx, execCreateResp.ID)
-		if err != nil {
-			return err
+		select {
+		case stopRequest := <-execution.StopChan:
+			if stopRequest {
+				ctx.Done()
+				return nil
+			}
+		default:
+			execInspect, err := c.Client.ContainerExecInspect(ctx, execCreateResp.ID)
+			if err != nil {
+				return err
+			}
+			if !execInspect.Running {
+				execution.ExitCode <- execInspect.ExitCode
+				break
+			}
+			time.Sleep(2 * time.Second)
 		}
-		if !execInspect.Running {
-			execution.ExitCode <- execInspect.ExitCode
-			break
-		}
-		time.Sleep(2 * time.Second)
 	}
-	return nil
 }
 
 func (c *Container) copyToContainer(ctx context.Context, content []byte, resultFileName string) (err error) {

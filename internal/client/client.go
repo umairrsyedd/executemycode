@@ -37,7 +37,7 @@ func new(w http.ResponseWriter, r *http.Request, responseHeader http.Header) (cl
 }
 
 func (c *Client) IsExecuting() bool {
-	return c.Execution == nil
+	return c.Execution != nil
 }
 
 func (c *Client) SetExecution(execution *executer.Execution) {
