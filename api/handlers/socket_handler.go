@@ -59,21 +59,26 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 
 		switch msg.Type {
 		case message.Code:
-			newExecution := executer.NewExecution(msg.ExecutionId, msg.Language, msg.Message, client)
-			client.AddExecution(newExecution)
+			if client.IsExecuting() {
+				prevExecution, _ := client.GetExecution()
+				prevExecution.Done()
+			}
+
+			newExecution := executer.NewExecution(msg.Language, msg.Message, client)
+			client.SetExecution(newExecution)
 			go containerOrc.ConnectAndExecute(newExecution)
 			go newExecution.ListenForOutput()
 
 		case message.Input:
-			execution, err := client.GetExecution(msg.ExecutionId)
+			execution, err := client.GetExecution()
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
 			go execution.FeedInput(msg.Message)
 
-		case message.Done:
-			execution, err := client.GetExecution(msg.ExecutionId)
+		case message.Close:
+			execution, err := client.GetExecution()
 			if err != nil {
 				fmt.Println(err)
 				continue

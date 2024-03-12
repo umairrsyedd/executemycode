@@ -10,9 +10,9 @@ import (
 )
 
 type Client struct {
-	Id         uuid.UUID
-	Conn       *websocket.Conn
-	Executions map[int]*executer.Execution
+	Id        uuid.UUID
+	Conn      *websocket.Conn
+	Execution *executer.Execution
 }
 
 var upgrader = websocket.Upgrader{
@@ -30,22 +30,25 @@ func new(w http.ResponseWriter, r *http.Request, responseHeader http.Header) (cl
 	}
 
 	return &Client{
-		Id:         uuid.New(),
-		Conn:       conn,
-		Executions: make(map[int]*executer.Execution),
+		Id:        uuid.New(),
+		Conn:      conn,
+		Execution: nil,
 	}, nil
 }
 
-func (c *Client) AddExecution(execution *executer.Execution) {
-	c.Executions[execution.ExecId] = execution
+func (c *Client) IsExecuting() bool {
+	return c.Execution == nil
 }
 
-func (c *Client) GetExecution(execId int) (*executer.Execution, error) {
-	execution, exists := c.Executions[execId]
-	if !exists {
-		return nil, fmt.Errorf("execution with Id: %d doesn't exist", execId)
+func (c *Client) SetExecution(execution *executer.Execution) {
+	c.Execution = execution
+}
+
+func (c *Client) GetExecution() (*executer.Execution, error) {
+	if c.Execution == nil {
+		return nil, fmt.Errorf("no Code is currently being executed")
 	}
-	return execution, nil
+	return c.Execution, nil
 }
 
 func (c *Client) Write(data []byte) (n int, err error) {

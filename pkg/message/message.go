@@ -20,10 +20,9 @@ const (
 )
 
 type Message struct {
-	ExecutionId int         `json:"execId"`
-	Type        MessageType `json:"type"`
-	Message     string      `json:"message,omitempty"`
-	Language    string      `json:"language,omitempty"`
+	Type     MessageType `json:"type"`
+	Message  string      `json:"message,omitempty"`
+	Language string      `json:"language,omitempty"`
 }
 
 func DecodeMessage(rawMessage []byte) (decodedMessage Message, err error) {
@@ -55,22 +54,8 @@ func (m *Message) Validate() error {
 
 	switch m.Type {
 	case Code:
-		if m.ExecutionId == 0 {
-			return fmt.Errorf("execution id must be present for code message")
-		}
-
 		if m.Language == "" {
 			return fmt.Errorf("langauge must be present for code message")
-		}
-
-	case Input:
-		if m.ExecutionId == 0 {
-			return fmt.Errorf("execution id must be present for input message")
-		}
-
-	case Close:
-		if m.ExecutionId == 0 {
-			return fmt.Errorf("execution id must be present for close message")
 		}
 	}
 

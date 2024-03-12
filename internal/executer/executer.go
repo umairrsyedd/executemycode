@@ -8,7 +8,6 @@ import (
 )
 
 type Execution struct {
-	ExecId        int
 	ExecutionInfo ExecutionInfo
 	InputChan     chan string
 	OutputChan    chan string
@@ -23,9 +22,8 @@ type ExecutionInfo struct {
 	Cmd             []string
 }
 
-func NewExecution(execId int, language string, code string, outputWriter io.Writer) *Execution {
+func NewExecution(language string, code string, outputWriter io.Writer) *Execution {
 	return &Execution{
-		ExecId: execId,
 		ExecutionInfo: ExecutionInfo{
 			ProgramLanguage: ProgramLanguage(language),
 			SourceCode:      code,
@@ -48,16 +46,14 @@ func (e *Execution) ListenForOutput() {
 		select {
 		case output := <-e.OutputChan:
 			msg := message.Message{
-				ExecutionId: e.ExecId,
-				Type:        message.Output,
-				Message:     output,
+				Type:    message.Output,
+				Message: output,
 			}
 			e.SendMessage(msg)
 		case exitCode := <-e.ExitCode:
 			msg := message.Message{
-				ExecutionId: e.ExecId,
-				Type:        message.Done,
-				Message:     fmt.Sprintf("...Program finished with exit code %d", exitCode),
+				Type:    message.Done,
+				Message: fmt.Sprintf("...Program finished with exit code %d", exitCode),
 			}
 			e.SendMessage(msg)
 			return
@@ -74,7 +70,7 @@ func (e *Execution) SendMessage(msg message.Message) {
 
 	_, err = e.OutputWriter.Write([]byte(messageToSend))
 	if err != nil {
-		log.Printf("Couldn't Forward Output for Execution Id: %d", e.ExecId)
+		log.Printf("Couldn't Forward Output for Execution")
 	}
 
 }
