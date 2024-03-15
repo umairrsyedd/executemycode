@@ -19,13 +19,13 @@ export const useCustomWebSocket = (
 
     switch (message.type) {
       case MessageType.Output:
-        onOutput(message.message);
+        onOutput(message);
         break;
       case MessageType.Done:
-        onDone(message.message);
+        onDone(message);
         break;
       case MessageType.Error:
-        onError(message.message);
+        onError(message);
         break;
       default:
         console.log("Invalid Message Type from Server");

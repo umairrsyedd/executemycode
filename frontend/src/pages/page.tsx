@@ -22,35 +22,28 @@ import { useCustomWebSocket } from "@/hooks/useWebSocket";
 import { ProgramState } from "@/types/program";
 import { SocketState } from "@/types/socket";
 import StatusBar from "@/sections/statusbar/statusbar";
+import ExecutionManager from "@/types/execution";
+import { Message } from "@/types/message";
 
 export default function Page() {
   const [currentTheme, setTheme] = useLocalStorage("theme", Themes.Dark);
   const [code, setCode] = useState(sampleCodeMap.get(DefaultLanguage));
   const [currentLanguage, setCurrentLanguage] = useState(DefaultLanguage);
   const [programState, setProgramState] = useState(ProgramState.Idle);
-  const [consoleOutput, setConsoleOutput] = useState([]);
   const [socketState, setSocketState] = useState(SocketState.Connecting);
+  const [execManager, setExecManager] = useState(new ExecutionManager());
 
-  const onOutput = (output) => {
-    setConsoleOutput((prevOutput) => [...prevOutput, output]);
-  };
+  const onOutput = (output: Message) => execManager.AddMessage(output);
 
-  const onDone = (message) => {
-    setConsoleOutput((prevOutput) => [...prevOutput, message]);
+  const onError = (error: Message) => execManager.AddMessage(error);
+
+  const onDone = (message: Message) => {
+    execManager.AddMessage(message);
     setProgramState(ProgramState.Idle);
   };
 
-  const onError = (error) => {
-    setConsoleOutput((prevOutput) => [...prevOutput, error]);
-  };
-
-  const onConnected = (event) => {
-    setSocketState(SocketState.Success);
-  };
-
-  const onReconnectStop = (event) => {
-    setSocketState(SocketState.Failed);
-  };
+  const onConnected = (event) => setSocketState(SocketState.Success);
+  const onReconnectStop = (event) => setSocketState(SocketState.Failed);
 
   const { onMessage, sendCode, sendInput, sendClose } = useCustomWebSocket(
     process.env.NEXT_PUBLIC_EXECUTION_SERVER_URL,
@@ -68,6 +61,7 @@ export default function Page() {
 
   const handleExecute = async () => {
     setProgramState(ProgramState.Loading);
+    execManager.NewExecution();
     await sendCode(code, currentLanguage);
     setProgramState(ProgramState.Executing);
   };
@@ -110,7 +104,7 @@ export default function Page() {
         <div className={styles.main_area}>
           <ResizableContainer
             orientation={Orientation.Horizontal}
-            initialPercent={70}
+            initialPercent={80}
             minSizePercent={30}
             maxSizePercent={75}
           >
@@ -123,15 +117,15 @@ export default function Page() {
           <div className={styles.main_area_right}>
             <ResizableContainer
               orientation={Orientation.Vertical}
-              initialPercent={50}
+              initialPercent={70}
               minSizePercent={20}
               maxSizePercent={90}
             >
               <Console
                 programState={programState}
-                output={consoleOutput}
+                executions={execManager.GetExecutions()}
                 sendInput={sendConsoleInput}
-                clearConsole={clearConsole}
+                clearConsole={execManager.Clear}
               />
             </ResizableContainer>
             <Notepad />
