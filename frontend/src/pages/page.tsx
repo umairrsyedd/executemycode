@@ -20,6 +20,8 @@ import { ThemeContext, Themes } from "@/context/theme";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { useCustomWebSocket } from "@/hooks/useWebSocket";
 import { ProgramState } from "@/types/program";
+import { SocketState } from "@/types/socket";
+import StatusBar from "@/sections/statusbar/statusbar";
 
 export default function Page() {
   const [currentTheme, setTheme] = useLocalStorage("theme", Themes.Dark);
@@ -27,6 +29,7 @@ export default function Page() {
   const [currentLanguage, setCurrentLanguage] = useState(DefaultLanguage);
   const [programState, setProgramState] = useState(ProgramState.Idle);
   const [consoleOutput, setConsoleOutput] = useState([]);
+  const [socketState, setSocketState] = useState(SocketState.Connecting);
 
   const onOutput = (output) => {
     setConsoleOutput((prevOutput) => [...prevOutput, output]);
@@ -40,11 +43,22 @@ export default function Page() {
   const onError = (error) => {
     setConsoleOutput((prevOutput) => [...prevOutput, error]);
   };
+
+  const onConnected = (event) => {
+    setSocketState(SocketState.Success);
+  };
+
+  const onReconnectStop = (event) => {
+    setSocketState(SocketState.Failed);
+  };
+
   const { onMessage, sendCode, sendInput, sendClose } = useCustomWebSocket(
     process.env.NEXT_PUBLIC_EXECUTION_SERVER_URL,
     onOutput,
     onDone,
-    onError
+    onError,
+    onConnected,
+    onReconnectStop
   );
 
   const handleLanguageChange = (language: LanguageName) => {
@@ -90,6 +104,7 @@ export default function Page() {
             setProgramState={setProgramState}
             handleExecute={handleExecute}
             handleStop={handleStop}
+            socketStatus={socketState}
           />
         </div>
         <div className={styles.main_area}>
@@ -122,6 +137,7 @@ export default function Page() {
             <Notepad />
           </div>
         </div>
+        <StatusBar connectionStatus={socketState} />
       </div>
     </ThemeContext.Provider>
   );

@@ -16,6 +16,7 @@ export default function Navbar({
   setProgramState,
   handleExecute,
   handleStop,
+  socketStatus,
 }) {
   return (
     <div className={styles.navbar}>
@@ -32,6 +33,7 @@ export default function Navbar({
           setProgramState={setProgramState}
           handleExecute={handleExecute}
           handleStop={handleStop}
+          socketStatus={socketStatus}
         />
         <div className={styles.navbar_section_right_right}>
           <Toggler onToggle={setTheme} />

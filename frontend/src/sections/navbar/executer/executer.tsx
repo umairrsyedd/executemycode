@@ -10,7 +10,12 @@ import StopButton from "./stop_button";
 import LoadingButton from "./loading_button";
 import { ProgramState } from "@/types/program";
 
-export default function Executer({ programState, handleExecute, handleStop }) {
+export default function Executer({
+  programState,
+  handleExecute,
+  handleStop,
+  socketStatus,
+}) {
   const loading = programState === ProgramState.Loading;
 
   return (
@@ -18,7 +23,7 @@ export default function Executer({ programState, handleExecute, handleStop }) {
       {loading && <LoadingButton />}
 
       {!loading && programState === ProgramState.Idle && (
-        <ExecuteButton onClick={handleExecute} />
+        <ExecuteButton onClick={handleExecute} socketStatus={socketStatus} />
       )}
 
       {!loading && programState === ProgramState.Executing && (

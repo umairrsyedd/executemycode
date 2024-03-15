@@ -1,0 +1,64 @@
+.container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #007acc;
+  color: white;
+  height: 1.5rem;
+  z-index: 2; /* Adjust z-index as needed */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status_bar {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+  height: 100%;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  overflow: hidden;
+  opacity: 0.7;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+}
+
+.status_bar > span {
+  margin-left: 5px;
+}
+
+.status_bar__connecting {
+  border: 1px solid yellowgreen;
+}
+
+.status_bar__success {
+  background-color: green;
+  color: white;
+}
+
+.status_bar__failed {
+  border: 1px solid red;
+}
+
+.shimmer {
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    yellowgreen 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%; /* Twice the width for animation */
+  animation: shimmer 1.5s infinite; /* Adjust animation duration as needed */
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0; /* Start position */
+  }
+  100% {
+    background-position: -100% 0; /* End position */
+  }
+}

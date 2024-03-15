@@ -8,6 +8,10 @@
   background-color: #1c463e;
 }
 
+.run_container:disabled {
+  cursor: not-allowed !important;
+}
+
 .stop_container {
   background-color: #353535;
 }

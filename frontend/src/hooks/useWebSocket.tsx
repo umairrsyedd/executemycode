@@ -2,7 +2,14 @@ import { Message, MessageType } from "@/types/message";
 import { useState, useEffect, useRef } from "react";
 import useWebSocket, { ReadyState, Options } from "react-use-websocket";
 
-export const useCustomWebSocket = (url, onOutput, onDone, onError) => {
+export const useCustomWebSocket = (
+  url,
+  onOutput,
+  onDone,
+  onError,
+  onConnected,
+  onReconnectStop
+) => {
   const onOpen = (event) => {
     console.log("Connection Established With Server");
   };
@@ -29,13 +36,19 @@ export const useCustomWebSocket = (url, onOutput, onDone, onError) => {
     console.log("Connection Closed With Server");
   };
 
+  const onSocketError = (event) => {
+    console.log("An Error Occured Bro");
+  };
+
   const webSocketOptions: Options = {
-    onOpen: onOpen,
+    onOpen: onConnected,
     onMessage: onMessage,
     onClose: onClose,
-    reconnectAttempts: 0,
-    reconnectInterval: 1000,
+    onError: onSocketError,
+    reconnectAttempts: 20,
+    reconnectInterval: 2000,
     retryOnError: true,
+    onReconnectStop: onReconnectStop,
   };
 
   const { sendJsonMessage, lastMessage, readyState, sendMessage } =
