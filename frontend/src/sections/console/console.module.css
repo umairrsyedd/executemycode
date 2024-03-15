@@ -1,8 +1,44 @@
+.container {
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  background-color: var(--console-background-colour);
+  border-radius: 5px;
+}
+
 .console {
   width: 100%;
   height: 100%;
+  background-color: var(--console-colour);
   overflow: auto;
-  background-color: var(--console-background-colour);
-  padding: 0.5rem;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.console__element {
+  width: 100%;
+  height: 2lh;
+}
+
+.console__element:hover {
+  cursor: text;
+}
+
+.console__element::before {
+  content: "$";
+  text-align: center;
+  color: rgb(238, 156, 52);
+}
+
+.console__input {
+  outline: none;
+  background: transparent;
+  border: none;
+  color: rgb(240, 191, 129);
+  font-size: 1.2rem;
+  width: 100%;
+  word-wrap: break-word;
+  line-height: 1.5lh;
 }

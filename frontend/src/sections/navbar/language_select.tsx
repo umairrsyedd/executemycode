@@ -1,22 +1,25 @@
-import { LanguageName } from "@/constants/languages";
+import { LanguageName } from "@/types/languages";
 import styles from "./navbar.module.css";
+import { useEffect } from "react";
 
 export default function LanguageSelect({
   currentLanguage,
-  setCurrentLanguage,
+  handleLanguageChange,
 }) {
-  const languages = Object.keys(LanguageName);
+  const languages = Object.keys(LanguageName).map(
+    (key) => LanguageName[key as keyof typeof LanguageName]
+  );
 
-  const handleLanguageChange = (event) => {
+  const handleChange = (event) => {
     let selectedLanguage = event.target.value;
-    setCurrentLanguage(selectedLanguage);
+    handleLanguageChange(selectedLanguage);
   };
 
   return (
     <select
       className={styles.language_select}
       value={currentLanguage}
-      onChange={handleLanguageChange}
+      onChange={handleChange}
     >
       {languages.map((key, index) => (
         <option key={index} value={key}>

@@ -1,21 +1,51 @@
-"use client";
-
+import { useState, useEffect, useRef } from "react";
 import styles from "./console.module.css";
 
-import Terminal from "react-console-emulator";
+export default function Console({ output, sendInput, clearConsole }) {
+  const [inputValue, setInputValue] = useState("");
+  const terminalRef = useRef();
 
-const commands = {
-  echo: {
-    description: "Echo a passed string.",
-    usage: "echo <string>",
-    fn: (...args) => args.join(" "),
-  },
-};
+  useEffect(() => {
+    terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+  }, [output]);
 
-export default function Console() {
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const trimmedInput = inputValue.trim();
+    const trimmedInputLowerCase = trimmedInput.toLowerCase();
+    if (trimmedInput === "") {
+      return;
+    }
+
+    switch (trimmedInputLowerCase) {
+      case "clear":
+        clearConsole();
+        break;
+      default:
+        sendInput(trimmedInput + "\r");
+    }
+
+    setInputValue("");
+  };
+
   return (
-    <div className={styles.console}>
-      <Terminal commands={commands} disabled={false} />
+    <div className={styles.container}>
+      <div className={styles.console} ref={terminalRef}>
+        {output.map((line, index) => (
+          <div key={index}>{line}</div>
+        ))}
+        <form onSubmit={handleSubmit}>
+          <input
+            className={styles.console__input}
+            value={inputValue}
+            onChange={handleInputChange}
+          />
+        </form>
+      </div>
     </div>
   );
 }

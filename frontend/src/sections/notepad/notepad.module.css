@@ -6,4 +6,5 @@
   color: var(--text-primary);
   max-height: 100%;
   overflow: auto;
+  border-radius: 5px;
 }

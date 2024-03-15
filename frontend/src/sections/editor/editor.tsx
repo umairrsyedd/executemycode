@@ -1,25 +1,33 @@
 "use client";
 
 import styles from "./editor.module.css";
+import _ from "lodash";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 import { andromeda } from "@uiw/codemirror-theme-andromeda";
 import { quietlight } from "@uiw/codemirror-theme-quietlight";
-import { LanguageName } from "@/constants/languages";
-import { useContext } from "react";
+import { LanguageName, sampleCodeMap } from "@/types/languages";
+import { useContext, useEffect } from "react";
 import { ThemeContext, Themes } from "@/context/theme";
 
-import { extensionMap, sampleCodeMap } from "./langauge_metadata";
+import { extensionMap } from "./langauge_metadata";
 
-export default function EditorComponent({ currentLanguage }) {
+export default function EditorComponent({ currentLanguage, code, setCode }) {
   const theme = useContext(ThemeContext);
   const editorStyle = {
     fontSize: "16px",
   };
 
+  const throttledCodeSetter = _.debounce((event) => {
+    setCode(event);
+  }, 500);
+
   return (
     <div className={styles.editor}>
       <CodeMirror
-        value={sampleCodeMap.get(currentLanguage)}
+        onChange={(event) => {
+          throttledCodeSetter(event);
+        }}
+        value={code}
         extensions={[
           extensionMap.get(currentLanguage)(),
           EditorView.lineWrapping,
