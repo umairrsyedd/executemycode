@@ -59,9 +59,9 @@ func listenForMessages(client *client.Client, containerOrc *container.ContainerO
 
 		switch msg.Type {
 		case message.Code:
-			if client.IsExecuting() {
+			if client.HasPrevExecution() {
 				prevExecution, _ := client.GetExecution()
-				prevExecution.Done()
+				prevExecution.Clear()
 			}
 
 			newExecution := executer.NewExecution(msg.Language, msg.Message, client)

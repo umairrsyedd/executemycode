@@ -36,7 +36,7 @@ func new(w http.ResponseWriter, r *http.Request, responseHeader http.Header) (cl
 	}, nil
 }
 
-func (c *Client) IsExecuting() bool {
+func (c *Client) HasPrevExecution() bool {
 	return c.Execution != nil
 }
 

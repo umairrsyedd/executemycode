@@ -114,10 +114,12 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 				return err
 			}
 			if !execInspect.Running {
-				execution.ExitCode <- execInspect.ExitCode
-				break
+				if !execution.IsDone {
+					execution.ExitCode <- execInspect.ExitCode
+				}
+				return nil
 			}
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }

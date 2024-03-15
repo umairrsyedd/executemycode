@@ -14,6 +14,7 @@ type Execution struct {
 	StopChan      chan bool
 	OutputWriter  io.Writer
 	ExitCode      chan int
+	IsDone        bool
 }
 
 type ExecutionInfo struct {
@@ -31,10 +32,11 @@ func NewExecution(language string, code string, outputWriter io.Writer) *Executi
 			FileExtension:   getFileExtension(ProgramLanguage(language)),
 			Cmd:             getCmd(ProgramLanguage(language)),
 		},
+		OutputWriter: outputWriter,
 		InputChan:    make(chan string),
 		OutputChan:   make(chan string),
-		OutputWriter: outputWriter,
 		ExitCode:     make(chan int),
+		StopChan:     make(chan bool),
 	}
 }
 
@@ -93,4 +95,15 @@ func (e *Execution) Done() {
 	close(e.InputChan)
 	close(e.OutputChan)
 	close(e.ExitCode)
+	e.IsDone = true
+}
+
+func (e *Execution) Clear() {
+	if e.IsDone {
+		return
+	}
+	close(e.InputChan)
+	close(e.OutputChan)
+	close(e.ExitCode)
+	close(e.StopChan)
 }

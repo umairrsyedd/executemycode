@@ -48,7 +48,7 @@ func (m *Message) Validate() error {
 		return fmt.Errorf("message type must be present")
 	}
 
-	if m.Message == "" {
+	if m.Message == "" && m.Type != Close {
 		return fmt.Errorf("message cannot be empty")
 	}
 
