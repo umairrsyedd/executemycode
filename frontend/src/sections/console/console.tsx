@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import styles from "./console.module.css";
 import { Execution, ExecutionI } from "@/types/execution";
 import { MessageType } from "@/types/message";
+import { VscClearAll } from "react-icons/vsc";
 
 export default function Console({
   output,
@@ -14,6 +15,7 @@ export default function Console({
   shouldFocus: boolean;
 }) {
   const [inputValue, setInputValue] = useState("");
+  const [clearCount, setClearCount] = useState(0);
   const terminalRef = useRef();
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function Console({
     if (shouldFocus && terminalRef.current) {
       terminalRef.current.querySelector("input").focus();
     }
-  }, [executions, shouldFocus]);
+  }, [executions, shouldFocus, clearCount]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -38,13 +40,18 @@ export default function Console({
 
     switch (trimmedInputLowerCase) {
       case "clear":
-        clearConsole();
+        clearWrapper();
         break;
       default:
         sendInput(trimmedInput + "\r");
     }
 
     setInputValue("");
+  };
+
+  const clearWrapper = () => {
+    clearConsole();
+    setClearCount((prev) => prev + 1);
   };
 
   const getExtraClass = (type: MessageType) => {
@@ -56,7 +63,14 @@ export default function Console({
   return (
     <div className={styles.container}>
       <div className={styles.console} ref={terminalRef}>
-        <div className={styles.console__header}>Console</div>
+        <div className={styles.console__header}>
+          <span>Console</span>
+          <VscClearAll
+            color="white"
+            className={styles.console__clear}
+            onClick={() => clearWrapper()}
+          />
+        </div>
         {executions.map((exec, i) => (
           <div className={styles.console__execution} key={i}>
             {exec.Messages.map((msg, j) => (

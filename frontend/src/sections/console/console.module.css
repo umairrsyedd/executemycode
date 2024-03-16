@@ -22,6 +22,13 @@
   color: rgb(238, 156, 52);
   border-bottom: 2px solid grey;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.console__clear {
+  cursor: pointer;
 }
 
 .console__input {
