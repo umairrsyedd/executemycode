@@ -24,10 +24,13 @@ import { SocketState } from "@/types/socket";
 import StatusBar from "@/sections/statusbar/statusbar";
 import ExecutionManager from "@/types/execution";
 import { Message } from "@/types/message";
+import { useLocalCode } from "@/hooks/useCode";
 
 export default function Page() {
   const [currentTheme, setTheme] = useLocalStorage("theme", Themes.Dark);
-  const [code, setCode] = useState(sampleCodeMap.get(DefaultLanguage));
+  const { getCode, saveCodeToLocalStorage, clearLocalStorageCode } =
+    useLocalCode();
+  const [code, setCode] = useState(getCode(DefaultLanguage));
   const [currentLanguage, setCurrentLanguage] = useState(DefaultLanguage);
   const [programState, setProgramState] = useState(ProgramState.Idle);
   const [socketState, setSocketState] = useState(SocketState.Connecting);
@@ -58,7 +61,7 @@ export default function Page() {
 
   const handleLanguageChange = (language: LanguageName) => {
     setCurrentLanguage(language);
-    setCode(sampleCodeMap.get(language));
+    setCode(getCode(language));
   };
 
   const handleExecute = async () => {
@@ -81,6 +84,16 @@ export default function Page() {
 
   const sendConsoleInput = (input) => {
     sendInput(input);
+  };
+
+  const handleEditorCodeChange = (code) => {
+    saveCodeToLocalStorage(currentLanguage, code);
+    setCode(code);
+  };
+
+  const handleEditorCodeReset = () => {
+    clearLocalStorageCode(currentLanguage);
+    setCode(getCode(currentLanguage));
   };
 
   const handleThemeToggle = () => {
@@ -114,7 +127,8 @@ export default function Page() {
             <Editor
               currentLanguage={currentLanguage}
               code={code}
-              setCode={setCode}
+              setCode={handleEditorCodeChange}
+              handleEditorCodeReset={handleEditorCodeReset}
             />
           </ResizableContainer>
           <div className={styles.main_area_right}>

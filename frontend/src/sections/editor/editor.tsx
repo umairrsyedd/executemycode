@@ -8,24 +8,38 @@ import { quietlight } from "@uiw/codemirror-theme-quietlight";
 import { LanguageName, sampleCodeMap } from "@/types/languages";
 import { useContext, useEffect } from "react";
 import { ThemeContext, Themes } from "@/context/theme";
+import { BiReset } from "react-icons/bi";
 
 import { extensionMap } from "./langauge_metadata";
 
-export default function EditorComponent({ currentLanguage, code, setCode }) {
+export default function EditorComponent({
+  currentLanguage,
+  code,
+  setCode,
+  handleEditorCodeReset,
+}) {
   const theme = useContext(ThemeContext);
   const editorStyle = {
     fontSize: "16px",
   };
 
-  const throttledCodeSetter = _.debounce((event) => {
+  const debouncedCodeSetter = _.debounce((event) => {
     setCode(event);
   }, 500);
 
   return (
     <div className={styles.editor}>
+      <div className={styles.editor__topbar}>
+        <BiReset
+          color={theme === Themes.Dark ? "white" : "black"}
+          size={20}
+          className={styles.editor__topbar_reset}
+          onClick={handleEditorCodeReset}
+        />
+      </div>
       <CodeMirror
         onChange={(event) => {
-          throttledCodeSetter(event);
+          debouncedCodeSetter(event);
         }}
         value={code}
         extensions={[
