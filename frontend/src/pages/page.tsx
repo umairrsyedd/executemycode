@@ -32,6 +32,7 @@ export default function Page() {
   const [programState, setProgramState] = useState(ProgramState.Idle);
   const [socketState, setSocketState] = useState(SocketState.Connecting);
   const [execManager, setExecManager] = useState(new ExecutionManager());
+  const [shouldConsoleFocus, setShouldConsoleFocus] = useState(false);
 
   const onOutput = (output: Message) => execManager.AddMessage(output);
 
@@ -40,6 +41,7 @@ export default function Page() {
   const onDone = (message: Message) => {
     execManager.AddMessage(message);
     setProgramState(ProgramState.Idle);
+    setShouldConsoleFocus(false);
   };
 
   const onConnected = (event) => setSocketState(SocketState.Success);
@@ -64,6 +66,7 @@ export default function Page() {
     execManager.NewExecution();
     await sendCode(code, currentLanguage);
     setProgramState(ProgramState.Executing);
+    setShouldConsoleFocus(true);
   };
 
   const handleStop = async () => {
@@ -73,7 +76,7 @@ export default function Page() {
   };
 
   const clearConsole = () => {
-    setConsoleOutput([]);
+    execManager.Clear();
   };
 
   const sendConsoleInput = (input) => {
@@ -125,7 +128,8 @@ export default function Page() {
                 programState={programState}
                 executions={execManager.GetExecutions()}
                 sendInput={sendConsoleInput}
-                clearConsole={execManager.Clear}
+                clearConsole={clearConsole}
+                shouldFocus={shouldConsoleFocus}
               />
             </ResizableContainer>
             <Notepad />

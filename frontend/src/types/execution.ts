@@ -1,5 +1,20 @@
 import { Message } from "./message";
 
+export interface ExecutionI {
+  StartTime: Date;
+  Messages: Message[];
+}
+
+export class Execution implements ExecutionI {
+  StartTime: Date;
+  Messages: Message[];
+
+  constructor() {
+    this.StartTime = new Date();
+    this.Messages = [];
+  }
+}
+
 export default class ExecutionManager {
   private ExecutionStore: Execution[];
   private CurrentExecution: Execution | null;
@@ -16,32 +31,18 @@ export default class ExecutionManager {
   }
 
   AddMessage(message: Message) {
-    if (this.CurrentExecution) {
-      this.CurrentExecution.Messages.push(message);
+    if (!this.CurrentExecution) {
+      this.NewExecution();
     }
+    this.CurrentExecution.Messages.push(message);
   }
 
   Clear() {
-    this.ExecutionStore = [];
+    this.ExecutionStore.length = 0; // This directly clears the array
     this.CurrentExecution = null;
   }
 
   GetExecutions(): Execution[] {
     return this.ExecutionStore;
-  }
-}
-
-export interface ExecutionI {
-  StartTime: Date;
-  Messages: Message[];
-}
-
-export class Execution implements ExecutionI {
-  StartTime: Date;
-  Messages: Message[];
-
-  constructor() {
-    this.StartTime = new Date();
-    this.Messages = [];
   }
 }

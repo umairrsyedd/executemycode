@@ -11,13 +11,18 @@ export default function Console({
   executions,
 }: {
   executions: Execution[];
+  shouldFocus: boolean;
 }) {
   const [inputValue, setInputValue] = useState("");
   const terminalRef = useRef();
 
   useEffect(() => {
     terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-  }, [executions]);
+
+    if (shouldFocus && terminalRef.current) {
+      terminalRef.current.querySelector("input").focus();
+    }
+  }, [executions, shouldFocus]);
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
