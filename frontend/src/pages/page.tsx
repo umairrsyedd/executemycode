@@ -24,7 +24,7 @@ import { SocketState } from "@/types/socket";
 import StatusBar from "@/sections/statusbar/statusbar";
 import ExecutionManager from "@/types/execution";
 import { Message } from "@/types/message";
-import { useLocalCode } from "@/hooks/useCode";
+import { useLocalCode } from "@/hooks/useLocalCode";
 
 export default function Page() {
   const [currentTheme, setTheme] = useLocalStorage("theme", Themes.Dark);
