@@ -23,8 +23,10 @@ export default function ResizableContainer({
 }) {
   const containerRef = useRef(null);
   const [currentPx, setPx] = useState(initialPx);
+  const [isResizing, setIsResizing] = useState(false);
 
   const handleResizeStart = (event) => {
+    setIsResizing(true);
     document.addEventListener("mousemove", handleResize);
     document.addEventListener("mouseup", handleResizeEnd);
   };
@@ -43,6 +45,7 @@ export default function ResizableContainer({
   }, 16);
 
   const handleResizeEnd = () => {
+    setIsResizing(false);
     document.removeEventListener("mousemove", handleResize);
     document.removeEventListener("mouseup", handleResizeEnd);
   };
@@ -63,11 +66,19 @@ export default function ResizableContainer({
     <div ref={containerRef} style={containerStyles}>
       {children}
       <div
-        className={
+        className={`${
           orientation === Orientation.Horizontal
             ? styles.resizer_horizontal
             : styles.resizer_vertical
-        }
+        } ${
+          isResizing && orientation === Orientation.Horizontal
+            ? styles.resizer_horizontal_enlarge
+            : ""
+        } ${
+          isResizing && orientation === Orientation.Vertical
+            ? styles.resizer_vertical_enlarge
+            : ""
+        }`}
         onMouseDown={handleResizeStart}
       ></div>
     </div>

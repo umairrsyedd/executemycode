@@ -10,8 +10,16 @@
   margin-right: 0.5rem;
 }
 
+.resizer_horizontal_enlarge {
+  width: 4px;
+}
+
 .resizer_vertical {
   height: 2px;
   cursor: ns-resize;
   margin-bottom: 0.5rem;
+}
+
+.resizer_vertical_enlarge {
+  height: 4px;
 }

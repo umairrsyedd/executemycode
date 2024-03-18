@@ -11,6 +11,7 @@
 }
 
 .main_area_right {
+  height: 100%;
   overflow: auto;
   flex-grow: 1;
   display: flex;
