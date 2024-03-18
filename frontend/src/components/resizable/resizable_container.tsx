@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import styles from "./resizable.module.css";
 import _ from "lodash";
@@ -8,31 +8,23 @@ export const enum Orientation {
   Vertical = "Y",
 }
 
-// TODO: 1. Maybe Use Pixels instead of Percent.
-// TODO: 2. Try to Rely on Vanilla Dom Manupulation.
-
 export default function ResizableContainer({
   orientation,
-  initialPercent,
-  minSizePercent,
-  maxSizePercent,
-  throttleResize = 16,
+  initialPx = 500,
+  maxPx,
+  minPx,
   children,
 }: {
   orientation: Orientation;
-  initialPercent: number;
-  minSizePercent: number;
-  maxSizePercent: number;
-  throttleResize: number;
+  initialPx: number;
+  maxPx: number;
+  minPx: number;
   children: React.ReactNode;
 }) {
   const containerRef = useRef(null);
-  const [currentPercent, setCurrentPercent] = useState(initialPercent);
+  const [currentPx, setPx] = useState(initialPx);
 
-  let initialResizerPosition = null;
   const handleResizeStart = (event) => {
-    initialResizerPosition =
-      orientation === Orientation.Horizontal ? event.clientX : event.clientY;
     document.addEventListener("mousemove", handleResize);
     document.addEventListener("mouseup", handleResizeEnd);
   };
@@ -42,40 +34,30 @@ export default function ResizableContainer({
   };
 
   const handleResizeThrottled = _.throttle((event) => {
-    const currentResizer =
+    const currentResizerPos =
       orientation === Orientation.Horizontal ? event.clientX : event.clientY;
 
-    const delta = currentResizer - initialResizerPosition;
-
-    let newPercent = 0;
-    if (orientation === Orientation.Horizontal) {
-      const containerWidth = containerRef.current.offsetWidth;
-      newPercent = ((containerWidth + delta) / containerWidth) * 100;
-    } else {
-      const containerHeight = containerRef.current.offsetHeight;
-      newPercent = ((containerHeight + delta) / containerHeight) * 100;
+    if (currentResizerPos >= minPx && currentResizerPos <= maxPx) {
+      setPx(currentResizerPos);
     }
-
-    newPercent = Math.max(minSizePercent, Math.min(maxSizePercent, newPercent));
-
-    requestAnimationFrame(() => {
-      setCurrentPercent(newPercent);
-    });
-  }, throttleResize);
+  }, 16);
 
   const handleResizeEnd = () => {
     document.removeEventListener("mousemove", handleResize);
     document.removeEventListener("mouseup", handleResizeEnd);
   };
 
-  const containerStyles = {
+  let containerStyles = {
     display: `flex`,
     width:
-      orientation === Orientation.Horizontal ? `${currentPercent}%` : undefined,
-    height:
-      orientation === Orientation.Vertical ? `${currentPercent}%` : undefined,
+      orientation === Orientation.Horizontal ? `${currentPx}px` : undefined,
+    height: orientation === Orientation.Vertical ? `${currentPx}px` : undefined,
     flexDirection: orientation === Orientation.Horizontal ? `row` : `column`,
   };
+
+  useEffect(() => {
+    setPx(initialPx);
+  }, [initialPx]);
 
   return (
     <div ref={containerRef} style={containerStyles}>

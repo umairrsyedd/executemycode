@@ -12,10 +12,8 @@ import {
   LocalStoragePrefix,
   sampleCodeMap,
 } from "@/types/languages";
-import { useEffect, useState } from "react";
-import ResizableContainer, {
-  Orientation,
-} from "@/components/resizable/resizable_container";
+import { useEffect, useRef, useState } from "react";
+import z, { Orientation } from "@/components/resizable/resizable_container";
 import { ThemeContext, Themes } from "@/context/theme";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { useCustomWebSocket } from "@/hooks/useWebSocket";
@@ -25,6 +23,7 @@ import StatusBar from "@/sections/statusbar/statusbar";
 import ExecutionManager from "@/types/execution";
 import { Message } from "@/types/message";
 import { useLocalCode } from "@/hooks/useLocalCode";
+import ResizableContainer from "@/components/resizable/resizable_container";
 
 export default function Page() {
   const [currentTheme, setTheme] = useLocalStorage("theme", Themes.Dark);
@@ -102,6 +101,16 @@ export default function Page() {
     );
   };
 
+  const containerRef = useRef(null);
+
+  const [editorContainerWidth, setEditorContainerWidth] = useState();
+  const [consoleContainerHeight, setConsoleContainerHeight] = useState();
+
+  useEffect(() => {
+    setEditorContainerWidth(containerRef.current.offsetWidth);
+    setConsoleContainerHeight(containerRef.current.offsetHeight);
+  });
+
   return (
     <ThemeContext.Provider value={currentTheme}>
       <div className={styles.page} data-theme={currentTheme}>
@@ -117,12 +126,12 @@ export default function Page() {
             socketStatus={socketState}
           />
         </div>
-        <div className={styles.main_area}>
+        <div className={styles.main_area} ref={containerRef}>
           <ResizableContainer
             orientation={Orientation.Horizontal}
-            initialPercent={80}
-            minSizePercent={30}
-            maxSizePercent={75}
+            initialPx={editorContainerWidth * 0.75}
+            maxPx={editorContainerWidth * 0.9}
+            minPx={editorContainerWidth * 0.4}
           >
             <Editor
               currentLanguage={currentLanguage}
@@ -134,9 +143,9 @@ export default function Page() {
           <div className={styles.main_area_right}>
             <ResizableContainer
               orientation={Orientation.Vertical}
-              initialPercent={70}
-              minSizePercent={20}
-              maxSizePercent={90}
+              initialPx={consoleContainerHeight * 0.6}
+              maxPx={consoleContainerHeight * 0.8}
+              minPx={consoleContainerHeight * 0.2}
             >
               <Console
                 programState={programState}
