@@ -69,10 +69,13 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 			return err
 		}
 
-		err = c.waitForCompiledFileToBeAvailable(ctx, fileName)
-		if err != nil {
-			return err
-		}
+		time.Sleep(2 * time.Second)
+
+		// TODO: Fix this Stuff Later
+		// err = c.waitForCompiledFileToBeAvailable(ctx, fileName)
+		// if err != nil {
+		// 	return err
+		// }
 
 	}
 
