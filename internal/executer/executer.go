@@ -1,6 +1,8 @@
 package executer
 
 import (
+	execlangauge "executemycode/internal/executer/exec_language"
+	"executemycode/pkg/language"
 	"executemycode/pkg/message"
 	"fmt"
 	"io"
@@ -18,19 +20,15 @@ type Execution struct {
 }
 
 type ExecutionInfo struct {
-	SourceCode      string
-	ProgramLanguage ProgramLanguage
-	FileExtension   string
-	Cmd             []string
+	SourceCode   string
+	LangExecuter execlangauge.LanguageExecuter
 }
 
-func NewExecution(language string, code string, outputWriter io.Writer) *Execution {
+func NewExecution(lang string, code string, outputWriter io.Writer) *Execution {
 	return &Execution{
 		ExecutionInfo: ExecutionInfo{
-			ProgramLanguage: ProgramLanguage(language),
-			SourceCode:      code,
-			FileExtension:   getFileExtension(ProgramLanguage(language)),
-			Cmd:             getCmd(ProgramLanguage(language)),
+			SourceCode:   code,
+			LangExecuter: execlangauge.New(language.ProgramLanguage(lang)),
 		},
 		OutputWriter: outputWriter,
 		InputChan:    make(chan string),

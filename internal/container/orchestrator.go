@@ -63,11 +63,15 @@ func (m *ContainerOrc) ConnectAndExecute(execution *executer.Execution) error {
 			if container == nil {
 				return fmt.Errorf("no available idle containers")
 			}
+			log.Printf("Picked %s for Execution for Client", container.ContainerName)
 			container.setStatus(Active)
 
 			defer func(container *Container) {
-				container.setStatus(Idle)
-				m.idleQueue <- container
+				go func() {
+					container.cleanup(context.TODO())
+					container.setStatus(Idle)
+					m.idleQueue <- container
+				}()
 			}(container)
 
 			err := container.execute(executionCtx, execution)

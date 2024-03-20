@@ -1,5 +1,20 @@
-# Use the official Golang base image
-FROM golang:latest
+# Use a base image with necessary dependencies
+FROM ubuntu:latest
 
-# Set the working directory inside the container
+# Update package lists
+RUN apt-get update
+
+# Install essential packages for Go, JavaScript, Rust, C, C++, Java
+RUN apt-get install -y \
+    golang \
+    nodejs \
+    npm \
+    rustc \
+    cargo \
+    build-essential \
+    default-jdk \
+    default-jre \
+    openjdk-11-jdk
+
+# Set up a working directory
 WORKDIR /app

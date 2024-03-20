@@ -5,6 +5,7 @@ import (
 	"context"
 	"executemycode/internal/executer"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -30,7 +31,7 @@ type Container struct {
 
 func new(ctx context.Context, client *client.Client, containerName string) (createdContainer *Container, err error) {
 	createResponse, err := client.ContainerCreate(ctx, &container.Config{
-		Image: "executer-image",
+		Image: "exec-with-cargo",
 		Cmd:   []string{"sleep", "infinity"},
 		Tty:   false,
 	}, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, containerName)
@@ -55,14 +56,28 @@ func new(ctx context.Context, client *client.Client, containerName string) (crea
 }
 
 func (c *Container) execute(ctx context.Context, execution *executer.Execution) (err error) {
-	fileName := fmt.Sprintf("sample%s", execution.ExecutionInfo.FileExtension)
-	err = c.copyToContainer(ctx, []byte(execution.ExecutionInfo.SourceCode), fileName)
+	fileName := "program"
+	fileNameWithExt := fmt.Sprintf("%s%s", fileName, execution.ExecutionInfo.LangExecuter.GetFileExt())
+	err = c.copyToContainer(ctx, []byte(execution.ExecutionInfo.SourceCode), fileNameWithExt)
 	if err != nil {
 		return err
 	}
 
+	if execution.ExecutionInfo.LangExecuter.IsRunCompiled() {
+		err := c.compileCode(ctx, execution.ExecutionInfo.LangExecuter.GetCompileCmd(fileName))
+		if err != nil {
+			return err
+		}
+
+		err = c.waitForCompiledFileToBeAvailable(ctx, fileName)
+		if err != nil {
+			return err
+		}
+
+	}
+
 	execCreateResp, err := c.Client.ContainerExecCreate(ctx, c.ContainerId, types.ExecConfig{
-		Cmd:          append(execution.ExecutionInfo.Cmd, fileName),
+		Cmd:          execution.ExecutionInfo.LangExecuter.GetRunCmd(fileName),
 		Tty:          true,
 		AttachStdin:  true,
 		AttachStdout: true,
@@ -124,6 +139,77 @@ func (c *Container) execute(ctx context.Context, execution *executer.Execution) 
 	}
 }
 
+func (c *Container) compileCode(ctx context.Context, compileCmd []string) error {
+	compileResp, err := c.Client.ContainerExecCreate(ctx, c.ContainerId, types.ExecConfig{
+		Cmd:          compileCmd,
+		Tty:          false,
+		AttachStdin:  false,
+		AttachStdout: true,
+		AttachStderr: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Client.ContainerExecAttach(ctx, compileResp.ID, types.ExecStartCheck{
+		Tty:    false,
+		Detach: false,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Wait for compilation to finish
+	err = c.Client.ContainerExecStart(ctx, compileResp.ID, types.ExecStartCheck{})
+	if err != nil {
+		return err
+	}
+
+	// Check compilation result
+	compileInspect, err := c.Client.ContainerExecInspect(ctx, compileResp.ID)
+	if err != nil {
+		return err
+	}
+	if compileInspect.ExitCode != 0 {
+		// Compilation failed
+		return fmt.Errorf("compilation failed with exit code: %d", compileInspect.ExitCode)
+	}
+
+	return nil
+}
+
+func (c *Container) waitForCompiledFileToBeAvailable(ctx context.Context, fileName string) error {
+	for {
+		_, err := c.Client.ContainerInspect(ctx, c.ContainerId)
+		if err != nil {
+			return err
+		}
+
+		// Check if the file exists in the container
+		fileExists, err := c.checkFileExists(ctx, fileName)
+		if err != nil {
+			return err
+		}
+
+		if fileExists {
+			break
+		}
+
+		// Wait before checking again
+		time.Sleep(500 * time.Millisecond)
+	}
+	return nil
+}
+
+func (c *Container) checkFileExists(ctx context.Context, fileName string) (bool, error) {
+	resp, err := c.Client.ContainerStatPath(ctx, c.ContainerId, "app/program")
+	if err != nil {
+		return false, err
+	}
+
+	return resp.Name == fileName, nil
+}
+
 func (c *Container) copyToContainer(ctx context.Context, content []byte, resultFileName string) (err error) {
 	err = c.Client.CopyToContainer(ctx, c.ContainerId,
 		"./app/",
@@ -144,4 +230,45 @@ func (c *Container) remove(ctx context.Context) error {
 
 func (c *Container) setStatus(status ContainerStatus) {
 	c.Status = status
+}
+
+func (c *Container) cleanup(ctx context.Context) error {
+	execCreateResp, err := c.Client.ContainerExecCreate(ctx, c.ContainerId, types.ExecConfig{
+		Cmd:          []string{"sh", "-c", "rm -rf /app/*"},
+		Tty:          false,
+		AttachStdin:  false,
+		AttachStdout: true,
+		AttachStderr: true,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to execute cleanup command: %v", err)
+	}
+
+	execResp, err := c.Client.ContainerExecAttach(ctx, execCreateResp.ID, types.ExecStartCheck{
+		Tty:    false,
+		Detach: false,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to attach to exec instance: %v", err)
+	}
+	defer execResp.Close()
+
+	// Wait for cleanup command to finish
+	err = c.Client.ContainerExecStart(ctx, execCreateResp.ID, types.ExecStartCheck{})
+	if err != nil {
+		return fmt.Errorf("failed to start cleanup command: %v", err)
+	}
+
+	// Check cleanup command result
+	execInspect, err := c.Client.ContainerExecInspect(ctx, execCreateResp.ID)
+	if err != nil {
+		return fmt.Errorf("failed to inspect cleanup command: %v", err)
+	}
+	if execInspect.ExitCode != 0 {
+		return fmt.Errorf("cleanup command failed with exit code: %d", execInspect.ExitCode)
+	}
+
+	log.Printf("Cleaned Up %s App Directory", c.ContainerName)
+
+	return nil
 }
