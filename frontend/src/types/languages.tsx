@@ -3,7 +3,7 @@ export enum LanguageName {
   Golang = "Golang",
   Rust = "Rust",
   CPlusPlus = "C++",
-  Java = "Java",
+  // Java = "Java",
   C = "C",
 }
 
