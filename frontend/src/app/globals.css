@@ -61,3 +61,7 @@ select {
   opacity: 0.5;
   color: var(--text-primary);
 }
+
+.cm-editor.cm-focused {
+  outline: none;
+}
