@@ -51,7 +51,6 @@ export default function ResizableContainer({
   };
 
   let containerStyles = {
-    display: `flex`,
     width:
       orientation === Orientation.Horizontal ? `${currentPx}px` : undefined,
     height: orientation === Orientation.Vertical ? `${currentPx}px` : undefined,
@@ -63,8 +62,14 @@ export default function ResizableContainer({
   }, [initialPx]);
 
   return (
-    <div ref={containerRef} style={containerStyles}>
-      {children}
+    <>
+      <div
+        ref={containerRef}
+        style={containerStyles}
+        className={styles.container}
+      >
+        {children}
+      </div>
       <div
         className={`${
           orientation === Orientation.Horizontal
@@ -81,6 +86,6 @@ export default function ResizableContainer({
         }`}
         onMouseDown={handleResizeStart}
       ></div>
-    </div>
+    </>
   );
 }

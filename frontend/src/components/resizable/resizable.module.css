@@ -1,3 +1,7 @@
+.container {
+  display: flex;
+}
+
 .resizer_horizontal,
 .resizer_vertical {
   background-color: var(--resizable-bar-colour);

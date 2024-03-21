@@ -25,6 +25,7 @@
 .navbar_section_right_right {
   display: flex;
   align-items: center;
+  user-select: none;
 }
 
 .invite_container:hover {
