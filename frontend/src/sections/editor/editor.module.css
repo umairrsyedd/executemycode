@@ -1,7 +1,6 @@
 .editor {
   width: 100%;
   height: 100%;
-  overflow: auto;
   background-color: var(--editor-background-colour);
   padding: 0.5rem;
   border-radius: 5px;

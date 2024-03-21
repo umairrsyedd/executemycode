@@ -1,10 +1,10 @@
-import { StrictMode } from "react";
 import Page from "../pages/page";
+import Script from "next/script";
 
 export default function RenderApp() {
   return (
-    <StrictMode>
+    <>
       <Page />
-    </StrictMode>
+    </>
   );
 }

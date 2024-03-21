@@ -1,4 +1,10 @@
-import { useState, useEffect, useRef, forwardRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useLayoutEffect,
+} from "react";
 import styles from "./console.module.css";
 import { Execution, ExecutionI } from "@/types/execution";
 import { MessageType } from "@/types/message";
@@ -13,7 +19,7 @@ const Console = forwardRef(
     const [clearCount, setClearCount] = useState(0);
     const terminalRef = useRef();
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }, [executions, shouldFocus, clearCount]);
 
@@ -53,7 +59,7 @@ const Console = forwardRef(
 
     return (
       <div className={styles.container}>
-        <div className={styles.console} ref={terminalRef}>
+        <div className={styles.console}>
           <div className={styles.console__header}>
             <span>Console</span>
             <VscClearAll
@@ -62,26 +68,29 @@ const Console = forwardRef(
               onClick={() => clearWrapper()}
             />
           </div>
-          {executions.map((exec, i) => (
-            <div className={styles.console__execution} key={i}>
-              {exec.Messages.map((msg, j) => (
-                <div className={styles.console__exec__msg} key={`${i}-${j}`}>
-                  <span className={`${getExtraClass(msg.type)}`}>
-                    {msg.message}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))}
-          <form onSubmit={handleSubmit}>
-            <input
-              ref={consoleInputRef}
-              className={styles.console__input}
-              value={inputValue}
-              onChange={handleInputChange}
-              autoFocus={shouldFocus}
-            />
-          </form>
+          <div className={styles.console__scrollable} ref={terminalRef}>
+            {executions.map((exec, i) => (
+              <div className={styles.console__execution} key={i}>
+                {exec.Messages.map((msg, j) => (
+                  <div className={styles.console__exec__msg} key={`${i}-${j}`}>
+                    <span className={`${getExtraClass(msg.type)}`}>
+                      {msg.message}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            <form onSubmit={handleSubmit}>
+              <input
+                ref={consoleInputRef}
+                className={styles.console__input}
+                value={inputValue}
+                onChange={handleInputChange}
+                autoFocus={shouldFocus}
+              />
+            </form>
+          </div>
         </div>
       </div>
     );

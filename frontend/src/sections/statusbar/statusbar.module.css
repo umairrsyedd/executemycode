@@ -4,12 +4,35 @@
   width: 100%;
   background-color: #007acc;
   color: white;
-  height: 1.5rem;
+  height: 1.75rem;
   z-index: 2; /* Adjust z-index as needed */
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
 }
 
+.left_content {
+  flex: 1; /* Expand to fill remaining space */
+  padding-left: 10px; /* Adjust as needed */
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.8rem;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.socials {
+  margin-left: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.socials > a {
+  margin-left: 5px;
+}
 .status_bar {
   font-size: 0.8rem;
   color: var(--text-primary);
@@ -61,4 +84,13 @@
   100% {
     background-position: -100% 0; /* End position */
   }
+}
+
+.heart_logo {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.rc_logo {
+  margin-left: 8px;
 }
