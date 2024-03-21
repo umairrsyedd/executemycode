@@ -130,6 +130,7 @@ export default function Page() {
         <div className={styles.main_area} ref={containerRef}>
           <ResizableContainer
             orientation={Orientation.Horizontal}
+            preLoadPercent={75}
             initialPx={editorContainerWidth * 0.75}
             maxPx={editorContainerWidth * 0.9}
             minPx={editorContainerWidth * 0.4}
@@ -144,6 +145,7 @@ export default function Page() {
           <div className={styles.main_area_right}>
             <ResizableContainer
               orientation={Orientation.Vertical}
+              preLoadPercent={60}
               initialPx={consoleContainerHeight * 0.6}
               maxPx={consoleContainerHeight * 0.8}
               minPx={consoleContainerHeight * 0.2}

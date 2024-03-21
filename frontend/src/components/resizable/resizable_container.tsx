@@ -10,12 +10,14 @@ export const enum Orientation {
 
 export default function ResizableContainer({
   orientation,
-  initialPx = 500,
+  preLoadPercent,
+  initialPx,
   maxPx,
   minPx,
   children,
 }: {
   orientation: Orientation;
+  preLoadPercent: number;
   initialPx: number;
   maxPx: number;
   minPx: number;
@@ -52,9 +54,18 @@ export default function ResizableContainer({
 
   let containerStyles = {
     width:
-      orientation === Orientation.Horizontal ? `${currentPx}px` : undefined,
-    height: orientation === Orientation.Vertical ? `${currentPx}px` : undefined,
-    flexDirection: orientation === Orientation.Horizontal ? `row` : `column`,
+      orientation === Orientation.Horizontal
+        ? !isNaN(currentPx)
+          ? `${currentPx}px`
+          : `${preLoadPercent}%`
+        : undefined,
+    height:
+      orientation === Orientation.Vertical
+        ? !isNaN(currentPx)
+          ? `${currentPx}px`
+          : `${preLoadPercent}%`
+        : undefined,
+    flexDirection: orientation === Orientation.Horizontal ? "row" : "column",
   };
 
   useEffect(() => {
