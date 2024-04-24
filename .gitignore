@@ -1,0 +1,33 @@
+# Next.js
+node_modules
+.next
+out
+/.next
+npm-debug.log
+yarn-error.log
+*.log
+*.pem
+*.pid
+*.seed
+*.pid.lock
+*.code-workspace
+*.swp
+.DS_Store
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/vendor/
+/Godeps/
+/Godeps-bin/
+/_test/
+/.idea
+/.vs/

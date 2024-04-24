@@ -6,6 +6,7 @@ import (
 	"executemycode/internal/executer"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -30,8 +31,9 @@ type Container struct {
 }
 
 func new(ctx context.Context, client *client.Client, containerName string) (createdContainer *Container, err error) {
+	containerImageName := os.Getenv("CONTAINER_IMAGE_NAME")
 	createResponse, err := client.ContainerCreate(ctx, &container.Config{
-		Image: "exec-with-cargo",
+		Image: containerImageName,
 		Cmd:   []string{"sleep", "infinity"},
 		Tty:   false,
 	}, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, containerName)
