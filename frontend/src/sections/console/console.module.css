@@ -28,7 +28,7 @@
 }
 
 .console__scrollable {
-  overflow: scroll;
+  overflow: auto;
 }
 
 .console__clear {
