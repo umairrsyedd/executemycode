@@ -110,7 +110,7 @@ export default function Page() {
   useEffect(() => {
     setEditorContainerWidth(containerRef.current.offsetWidth);
     setConsoleContainerHeight(containerRef.current.offsetHeight);
-  });
+  }, []);
 
   return (
     <ThemeContext.Provider value={currentTheme}>

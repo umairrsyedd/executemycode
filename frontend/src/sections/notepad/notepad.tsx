@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import styles from "./notepad.module.css";
-import ReactQuill from "react-quill";
+
 import "react-quill/dist/quill.snow.css";
 
 export default function Notepad() {
   const [value, setValue] = useState("");
+  const ReactQuill = useMemo(
+    () => dynamic(() => import("react-quill"), { ssr: false }),
+    []
+  );
   const toolbarOptions = [
     { size: ["small", "normal", "large"] },
     "bold",
