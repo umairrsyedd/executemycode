@@ -13,6 +13,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func PingHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Pong from execute my code"))
+	}
+}
+
 func ConnectionHandler(clientManager *client.ClientRegistry, containerManager *container.ContainerOrc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		client, err := clientManager.NewClient(w, r, nil)

@@ -18,11 +18,7 @@ import (
 )
 
 func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
-	}
-
+	_ = godotenv.Load(".env")
 }
 
 func main() {
@@ -46,6 +42,7 @@ func main() {
 	serverPort := os.Getenv("SERVER_PORT")
 
 	http.HandleFunc("/connect", handlers.ConnectionHandler(clientRegistry, containerOrchestrator))
+	http.HandleFunc("/ping", handlers.PingHandler())
 
 	server := &http.Server{
 		Addr: ":" + serverPort,
