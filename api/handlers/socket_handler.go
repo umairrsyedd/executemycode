@@ -15,6 +15,7 @@ import (
 
 func PingHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Received Ping From %s\n", r.Host)
 		w.Write([]byte("Pong from execute my code"))
 	}
 }
