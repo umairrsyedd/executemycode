@@ -1,7 +1,11 @@
+# To Build 
+# docker build -t umairrsyedd/execute-my-code-server -f server.dockerfile .
+
+
 # Step 1 
 
 # Use a multi-stage build with Alpine Linux as the base image
-FROM golang:1.22-alpine AS build
+FROM golang:1.22 AS build
 
 # Set the working directory
 WORKDIR /app
@@ -13,7 +17,7 @@ COPY . .
 RUN go mod download
 
 # Build the Go application
-RUN go build ./cmd/server
+RUN GOARCH=amd64 GOOS=linux go build -o /app/server ./cmd/server
 # Step 2
 
 # Use a minimal Alpine image as the final base image

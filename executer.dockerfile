@@ -1,5 +1,8 @@
+# To Build 
+# docker build -t umairrsyedd/executer -f executer.dockerfile .
+
 # Use a base image with necessary dependencies
-FROM ubuntu:latest
+FROM --platform=linux/amd64 ubuntu:latest
 
 # Update package lists
 RUN apt-get update
