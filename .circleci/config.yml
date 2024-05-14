@@ -1,0 +1,36 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.8
+
+    steps:
+      - checkout # Checkout the code from GitHub
+
+      - run:
+          name: Login to Docker registry
+          command: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t umairrsyedd/execute-my-code-server -f server.dockerfile .
+
+      - run:
+          name: Push Docker Image
+          command: |
+            docker push umairrsyedd/execute-my-code-server
+
+workflows:
+  version: 2
+  build_and_push:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+          # Require the emc-secrets context to be available
+          context:
+            - emc-secrets
